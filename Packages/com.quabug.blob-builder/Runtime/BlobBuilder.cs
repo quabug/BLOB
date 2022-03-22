@@ -16,7 +16,7 @@ public interface IBlobBuilder
     /// <param name="patchPosition">begin position of patched(dynamic) data</param>
     /// <param name="alignment">data alignment</param>
     /// <returns>patch position after building</returns>
-    int Build(Stream stream, int dataPosition, int patchPosition, int alignment = 0);
+    long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1);
 }
 
 /// <summary>
@@ -83,16 +83,18 @@ public unsafe class BlobBuilder<T> : IBlobBuilder where T : unmanaged
         return this;
     }
 
-    public int Build(Stream stream, int dataPosition, int patchPosition, int alignment = 0)
+    public long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1)
     {
         patchPosition = Math.Max(patchPosition, dataPosition + sizeof(T));
+        patchPosition = Utilities.Align(patchPosition, alignment);
         foreach (var fieldInfo in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
             var fieldOffset = Marshal.OffsetOf<T>(fieldInfo.Name).ToInt32();
             if (_fieldBuilderMap.TryGetValue(fieldOffset, out var builder))
             {
                 // TODO: restrict on writing-size of field value?
-                patchPosition = builder.Build(stream, dataPosition + fieldOffset, patchPosition);
+                patchPosition = builder.Build(stream, dataPosition + fieldOffset, patchPosition, alignment);
+                patchPosition = Utilities.Align(patchPosition, alignment);
             }
             else
             {
@@ -118,13 +120,14 @@ public unsafe class BlobPtrBuilder<T> : IBlobBuilder where T : unmanaged
     public BlobPtrBuilder(T value) => _builder = new BlobBuilder<T>(value);
     public BlobPtrBuilder(IBlobBuilder builder) => _builder = builder;
 
-    public int Build(Stream stream, int dataPosition, int patchPosition, int alignment = 0)
+    public long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1)
     {
         patchPosition = Math.Max(patchPosition, dataPosition + sizeof(BlobPtr<T>));
-        _blobPtr.Offset = patchPosition - dataPosition;
+        patchPosition = Utilities.Align(patchPosition, alignment);
+        _blobPtr.Offset = (int)(patchPosition - dataPosition);
         stream.Seek(dataPosition, SeekOrigin.Begin);
         stream.WriteValue(ref _blobPtr);
-        return _builder.Build(stream, patchPosition, patchPosition);
+        return _builder.Build(stream, patchPosition, patchPosition, alignment);
     }
 }
 
@@ -138,19 +141,21 @@ public class BlobArrayBuilder<T> : IBlobBuilder where T : unmanaged
 
     public BlobArrayBuilder(IEnumerable<IBlobBuilder> builders) => _builders = builders.ToArray();
 
-    public unsafe int Build(Stream stream, int dataPosition, int patchPosition, int alignment = 0)
+    public unsafe long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1)
     {
         patchPosition = Math.Max(patchPosition, dataPosition + sizeof(BlobArray<T>));
-        _blobArray.Offset = patchPosition - dataPosition;
+        patchPosition = Utilities.Align(patchPosition, alignment);
+        _blobArray.Offset = (int)(patchPosition - dataPosition);
         var length = _builders.Length;
         _blobArray.Length = length;
         stream.Seek(dataPosition, SeekOrigin.Begin);
         stream.WriteValue(ref _blobArray);
         var arrayPatchPosition = patchPosition + sizeof(T) * length;
+        arrayPatchPosition = Utilities.Align(arrayPatchPosition, alignment);
         for (var i = 0; i < length; i++)
         {
             var arrayDataPosition = patchPosition + sizeof(T) * i;
-            arrayPatchPosition = _builders[i].Build(stream, arrayDataPosition, arrayPatchPosition);
+            arrayPatchPosition = _builders[i].Build(stream, arrayDataPosition, arrayPatchPosition, alignment);
         }
         return arrayPatchPosition;
     }
@@ -172,24 +177,24 @@ public static class StreamExtension
         // TODO: should handle endianness?
         for (var i = 0; i < size; i++) stream.WriteByte(*(valuePtr + i));
     }
-
-    public static long SeekFromBegin(this Stream stream, int position, int alignment = 0)
-    {
-        position = Utilities.Align(position, alignment);
-        return stream.Seek(position, SeekOrigin.Begin);
-    }
 }
 
 public static class Utilities
 {
-    public static long Align(long address, int alignment = 0)
+    public static long Align(long address)
     {
-        if (alignment <= 0) alignment = IntPtr.Size;
-        return (address + (alignment - 1)) & -alignment;
+        return Align(address, IntPtr.Size);
     }
 
-    public static int Align(int address, int alignment)
+    public static long Align(long address, int alignment)
     {
-        return (int)Align((long)address, alignment);
+        if (alignment <= 0) throw new ArgumentOutOfRangeException(nameof(alignment), "alignment must be greater than 0");
+        if (!PowerOfTwo(alignment)) throw new ArgumentOutOfRangeException(nameof(alignment), "alignment must be power of 2");
+        return (address + (alignment - 1)) & -alignment;
+
+        static bool PowerOfTwo(int n)
+        {
+            return (n & (n - 1)) == 0;
+        }
     }
 }
