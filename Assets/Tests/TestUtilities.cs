@@ -6,7 +6,7 @@ namespace Tests
 {
     public class TestUtilities
     {
-        private static object[] _cases = new object[]
+        private static object[] _alignCases = new object[]
         {
             new int[] { 0, 0, 1 },
             new int[] { -1, -1, 1 },
@@ -54,7 +54,7 @@ namespace Tests
             new int[] { 1024, 1009, 16 },
         };
 
-        [TestCaseSource(nameof(_cases))]
+        [TestCaseSource(nameof(_alignCases))]
         public void should_align_numbers(int expected, int address, int alignment)
         {
             Assert.AreEqual(expected, Utilities.Align(address, alignment));
@@ -69,6 +69,19 @@ namespace Tests
             Assert.Catch<ArgumentOutOfRangeException>(() => Utilities.Align(0, 3));
             Assert.Catch<ArgumentOutOfRangeException>(() => Utilities.Align(0, 6));
             Assert.Catch<ArgumentOutOfRangeException>(() => Utilities.Align(0, 1000));
+        }
+
+        [Test]
+        public void should_align_by_type()
+        {
+            Assert.AreEqual(1, Utilities.AlignOf<byte>());
+            Assert.AreEqual(2, Utilities.AlignOf<short>());
+            Assert.AreEqual(4, Utilities.AlignOf<int>());
+            Assert.AreEqual(8, Utilities.AlignOf<long>());
+            Assert.AreEqual(4, Utilities.AlignOf<(short, int)>());
+            Assert.AreEqual(8, Utilities.AlignOf<(long, byte)>());
+            Assert.AreEqual(4, Utilities.AlignOf<(byte, (byte, int))>());
+            Assert.AreEqual(8, Utilities.AlignOf<(int, (byte, long))>());
         }
     }
 }
