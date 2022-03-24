@@ -1,4 +1,5 @@
 ﻿using System;
+using Blob;
 using NUnit.Framework;
 
 namespace Tests

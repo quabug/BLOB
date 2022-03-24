@@ -4,197 +4,253 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using JetBrains.Annotations;
 
-public interface IBlobBuilder
+namespace Blob
 {
-    /// <summary>
-    /// serialize builder value into BLOB stream
-    /// </summary>
-    /// <param name="stream">BLOB stream</param>
-    /// <param name="dataPosition">begin position of current data</param>
-    /// <param name="patchPosition">begin position of patched(dynamic) data</param>
-    /// <param name="alignment">data alignment</param>
-    /// <returns>patch position after building</returns>
-    long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1);
-}
-
-/// <summary>
-/// compatible with Unity.Entities.BlobPtr
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public struct BlobPtr<T> where T : unmanaged
-{
-    internal int Offset;
-
-    public unsafe ref T Value
+    public interface IBlobBuilder
     {
-        get
-        {
-            // TODO: check validation
-            fixed (void* thisPtr = &Offset)
-            {
-                return ref *(T*)((byte*)thisPtr + Offset);
-            }
-        }
-    }
-}
-
-/// <summary>
-/// compatible with Unity.Entities.BlobArray
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public struct BlobArray<T> where T : unmanaged
-{
-    internal int Offset;
-    internal int Length;
-
-    public unsafe ref T this[int index]
-    {
-        get
-        {
-            if (index < 0 || index >= Length) throw new ArgumentOutOfRangeException($"index({index}) out of range[0-{Length})");
-            fixed (void* thisPtr = &Offset)
-            {
-                return ref *(T*)((byte*)thisPtr + index * sizeof(T));
-            }
-        }
-    }
-}
-
-public unsafe class BlobBuilder<T> : IBlobBuilder where T : unmanaged
-{
-    private T _value;
-    public ref T Value => ref _value;
-
-    public BlobBuilder() {}
-    public BlobBuilder(T value) => _value = value;
-
-    private readonly Dictionary<int, IBlobBuilder> _fieldBuilderMap = new Dictionary<int, IBlobBuilder>();
-
-    public BlobBuilder<T> SetBuilder<TField>(ref TField field, [NotNull] IBlobBuilder builder) where TField : unmanaged
-    {
-        fixed (void* valuePtr = &_value)
-        fixed (void* fieldPtr = &field)
-        {
-            if (fieldPtr < valuePtr || fieldPtr >= (byte*)valuePtr + sizeof(T)) throw new ArgumentException("invalid field");
-            _fieldBuilderMap[(int)((byte*)fieldPtr - (byte*)valuePtr)] = builder;
-        }
-        return this;
+        /// <summary>
+        /// serialize builder value into BLOB stream
+        /// </summary>
+        /// <param name="stream">BLOB stream</param>
+        /// <param name="dataPosition">begin position of current data</param>
+        /// <param name="patchPosition">begin position of patched(dynamic) data</param>
+        /// <returns>patch position after building</returns>
+        long Build(Stream stream, long dataPosition, long patchPosition);
     }
 
-    public long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1)
+    public interface IBlobBuilder<T> : IBlobBuilder where T : unmanaged
     {
-        patchPosition = Math.Max(patchPosition, dataPosition + sizeof(T));
-        patchPosition = Utilities.Align(patchPosition, alignment);
-        foreach (var fieldInfo in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+    }
+
+    public unsafe class BlobBuilder<T> : IBlobBuilder<T> where T : unmanaged
+    {
+        private T _value;
+        public ref T Value => ref _value;
+
+        public BlobBuilder() {}
+        public BlobBuilder(T value) => _value = value;
+
+        private readonly Dictionary<int, IBlobBuilder> _fieldBuilderMap = new Dictionary<int, IBlobBuilder>();
+
+        public BlobBuilder<T> SetBuilder<TField>(ref TField field, [NotNull] IBlobBuilder<TField> builder)
+            where TField : unmanaged
         {
-            var fieldOffset = Marshal.OffsetOf<T>(fieldInfo.Name).ToInt32();
-            if (_fieldBuilderMap.TryGetValue(fieldOffset, out var builder))
+            fixed (void* valuePtr = &_value)
+            fixed (void* fieldPtr = &field)
             {
-                // TODO: restrict on writing-size of field value?
-                patchPosition = builder.Build(stream, dataPosition + fieldOffset, patchPosition, alignment);
-                patchPosition = Utilities.Align(patchPosition, alignment);
+                if (fieldPtr < valuePtr || fieldPtr >= (byte*)valuePtr + sizeof(T))
+                    throw new ArgumentException("invalid field");
+                _fieldBuilderMap[(int)((byte*)fieldPtr - (byte*)valuePtr)] = builder;
             }
-            else
+
+            return this;
+        }
+
+        public long Build([NotNull] Stream stream, long dataPosition, long patchPosition)
+        {
+            patchPosition = Utilities.EnsurePatchPosition<T>(patchPosition, dataPosition);
+
+            const BindingFlags fieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            foreach (var fieldInfo in typeof(T).GetFields(fieldFlags))
             {
-                stream.Seek(dataPosition + fieldOffset, SeekOrigin.Begin);
-                fixed (void* valuePtr = &_value)
+                var fieldOffset = Marshal.OffsetOf<T>(fieldInfo.Name).ToInt32();
+                if (_fieldBuilderMap.TryGetValue(fieldOffset, out var builder))
                 {
-                    var fieldPtr = (byte*)valuePtr + fieldOffset;
-                    var fieldSize = Marshal.SizeOf(fieldInfo.FieldType);
-                    stream.WriteValuePtr(fieldPtr, fieldSize);
+                    // TODO: restrict on writing-size of field value?
+                    patchPosition = builder.Build(stream, dataPosition + fieldOffset, patchPosition);
+                }
+                else
+                {
+                    stream.Seek(dataPosition + fieldOffset, SeekOrigin.Begin);
+                    fixed (void* valuePtr = &_value)
+                    {
+                        var fieldPtr = (byte*)valuePtr + fieldOffset;
+                        var fieldSize = Marshal.SizeOf(fieldInfo.FieldType);
+                        stream.WriteValuePtr(fieldPtr, fieldSize);
+                    }
                 }
             }
-        }
-        return patchPosition;
-    }
-}
 
-public unsafe class BlobPtrBuilder<T> : IBlobBuilder where T : unmanaged
-{
-    private BlobPtr<T> _blobPtr;
-    private readonly IBlobBuilder _builder;
-
-    public BlobPtrBuilder() => _builder = new BlobBuilder<T>();
-    public BlobPtrBuilder(T value) => _builder = new BlobBuilder<T>(value);
-    public BlobPtrBuilder(IBlobBuilder builder) => _builder = builder;
-
-    public long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1)
-    {
-        patchPosition = Math.Max(patchPosition, dataPosition + sizeof(BlobPtr<T>));
-        patchPosition = Utilities.Align(patchPosition, alignment);
-        _blobPtr.Offset = (int)(patchPosition - dataPosition);
-        stream.Seek(dataPosition, SeekOrigin.Begin);
-        stream.WriteValue(ref _blobPtr);
-        return _builder.Build(stream, patchPosition, patchPosition, alignment);
-    }
-}
-
-public class BlobArrayBuilder<T> : IBlobBuilder where T : unmanaged
-{
-    private BlobArray<T> _blobArray;
-    private readonly IBlobBuilder[] _builders;
-
-    public BlobArrayBuilder(IEnumerable<T> builders) =>
-        _builders = builders.Select(value => (IBlobBuilder)new BlobBuilder<T>(value)).ToArray();
-
-    public BlobArrayBuilder(IEnumerable<IBlobBuilder> builders) => _builders = builders.ToArray();
-
-    public unsafe long Build(Stream stream, long dataPosition, long patchPosition, int alignment = 1)
-    {
-        patchPosition = Math.Max(patchPosition, dataPosition + sizeof(BlobArray<T>));
-        patchPosition = Utilities.Align(patchPosition, alignment);
-        _blobArray.Offset = (int)(patchPosition - dataPosition);
-        var length = _builders.Length;
-        _blobArray.Length = length;
-        stream.Seek(dataPosition, SeekOrigin.Begin);
-        stream.WriteValue(ref _blobArray);
-        var arrayPatchPosition = patchPosition + sizeof(T) * length;
-        arrayPatchPosition = Utilities.Align(arrayPatchPosition, alignment);
-        for (var i = 0; i < length; i++)
-        {
-            var arrayDataPosition = patchPosition + sizeof(T) * i;
-            arrayPatchPosition = _builders[i].Build(stream, arrayDataPosition, arrayPatchPosition, alignment);
-        }
-        return arrayPatchPosition;
-    }
-}
-
-public static class StreamExtension
-{
-    public static unsafe void WriteValue<T>(this Stream stream, ref T value) where T : unmanaged
-    {
-        fixed (T* valuePtr = &value)
-        {
-            var size = sizeof(T);
-            WriteValuePtr(stream, (byte*)valuePtr, size);
+            return patchPosition;
         }
     }
 
-    public static unsafe void WriteValuePtr(this Stream stream, byte* valuePtr, int size)
+    public unsafe class BlobPtrBuilder<TValue, TPtr> : IBlobBuilder<TPtr>
+        where TValue : unmanaged
+        where TPtr : unmanaged
     {
-        // TODO: should handle endianness?
-        for (var i = 0; i < size; i++) stream.WriteByte(*(valuePtr + i));
-    }
-}
+        protected readonly IBlobBuilder<TValue> _Builder;
 
-public static class Utilities
-{
-    public static long Align(long address)
-    {
-        return Align(address, IntPtr.Size);
-    }
-
-    public static long Align(long address, int alignment)
-    {
-        if (alignment <= 0) throw new ArgumentOutOfRangeException(nameof(alignment), "alignment must be greater than 0");
-        if (!PowerOfTwo(alignment)) throw new ArgumentOutOfRangeException(nameof(alignment), "alignment must be power of 2");
-        return (address + (alignment - 1)) & -alignment;
-
-        static bool PowerOfTwo(int n)
+        static BlobPtrBuilder()
         {
-            return (n & (n - 1)) == 0;
+            // HACK: assume `BlobPtr` has and only has an int `offset` field.
+            if (sizeof(TPtr) != sizeof(int))
+                throw new ArgumentException($"{nameof(TPtr)} must has and only has an int `Offset` field");
+        }
+
+        public BlobPtrBuilder() => _Builder = new BlobBuilder<TValue>();
+        public BlobPtrBuilder(TValue value) => _Builder = new BlobBuilder<TValue>(value);
+        public BlobPtrBuilder([NotNull] IBlobBuilder<TValue> builder) => _Builder = builder;
+
+        public virtual long Build(Stream stream, long dataPosition, long patchPosition)
+        {
+            patchPosition = Utilities.EnsurePatchPosition<TPtr>(patchPosition, dataPosition);
+            var offset = (int)(patchPosition - dataPosition);
+            stream.Seek(dataPosition, SeekOrigin.Begin);
+            stream.WriteValue(ref offset);
+            return _Builder.Build(stream, patchPosition, patchPosition);
+        }
+    }
+
+    public class BlobPtrBuilder<T> : BlobPtrBuilder<T, BlobPtr<T>> where T : unmanaged
+    {
+        public BlobPtrBuilder() {}
+        public BlobPtrBuilder(T value) : base(value) {}
+        public BlobPtrBuilder([NotNull] IBlobBuilder<T> builder) : base(builder) {}
+    }
+
+    public unsafe class BlobArrayBuilder<TValue, TArray> : IBlobBuilder<TArray>
+        where TValue : unmanaged
+        where TArray : unmanaged
+    {
+        private readonly IBlobBuilder<TValue>[] _builders;
+
+        static BlobArrayBuilder()
+        {
+            // HACK: assume `BlobArray` has and only has an int `offset` field and an int `length` field.
+            if (sizeof(TArray) != (sizeof(int) + sizeof(int)))
+                throw new ArgumentException($"{nameof(TArray)} must has and only has an int `Offset` field and an int `Length` field");
+        }
+
+        public BlobArrayBuilder() => _builders = Array.Empty<IBlobBuilder<TValue>>();
+
+        public BlobArrayBuilder([NotNull] IEnumerable<TValue> elements) =>
+            _builders = elements.Select(value => (IBlobBuilder<TValue>)new BlobBuilder<TValue>(value)).ToArray();
+
+        public BlobArrayBuilder([NotNull, ItemNotNull] IEnumerable<IBlobBuilder<TValue>> builders) => _builders = builders.ToArray();
+
+        public virtual long Build([NotNull] Stream stream, long dataPosition, long patchPosition)
+        {
+            patchPosition = Utilities.EnsurePatchPosition<TArray>(patchPosition, dataPosition);
+            var offset = (int)(patchPosition - dataPosition);
+            var length = _builders.Length;
+            stream.Seek(dataPosition, SeekOrigin.Begin);
+            stream.WriteValue(ref offset);
+            stream.WriteValue(ref length);
+            var arrayPatchPosition = Utilities.Align<TValue>(patchPosition + sizeof(TValue) * length);
+            for (var i = 0; i < length; i++)
+            {
+                var arrayDataPosition = patchPosition + sizeof(TValue) * i;
+                arrayPatchPosition = _builders[i].Build(stream, arrayDataPosition, arrayPatchPosition);
+            }
+
+            return arrayPatchPosition;
+        }
+    }
+
+    public class BlobArrayBuilder<T> : BlobArrayBuilder<T, BlobArray<T>> where T : unmanaged
+    {
+        public BlobArrayBuilder() {}
+        public BlobArrayBuilder([NotNull] IEnumerable<T> elements) : base(elements) {}
+        public BlobArrayBuilder([NotNull, ItemNotNull] IEnumerable<IBlobBuilder<T>> builders) : base(builders) {}
+    }
+
+    public class BlobStringBuilder<TEncoding> : BlobArrayBuilder<byte, BlobString<TEncoding>>
+        where TEncoding : Encoding, new()
+    {
+        public BlobStringBuilder() {}
+        // TODO: optimize?
+        public BlobStringBuilder([NotNull] string str) : base(new TEncoding().GetBytes(str)) {}
+    }
+
+    public class BlobNullTerminatedStringBuilder<TEncoding> : BlobArrayBuilder<byte, BlobNullTerminatedString<TEncoding>>
+        where TEncoding : Encoding, new()
+    {
+        public BlobNullTerminatedStringBuilder() : base(new byte[] { 0 }) {}
+        // TODO: optimize?
+        public BlobNullTerminatedStringBuilder([NotNull] string str) : base(new TEncoding().GetBytes(str).Append((byte)0)) {}
+    }
+
+    public static partial class BlobExtension
+    {
+        public static ManagedBlobAssetReference<T> CreateManagedBlobAssetReference<T>(this IBlobBuilder<T> builder, int alignment = 0) where T : unmanaged
+        {
+            return new ManagedBlobAssetReference<T>(builder.CreateBlob(alignment));
+        }
+
+        public static byte[] CreateBlob<T>(this IBlobBuilder<T> builder, int alignment = 0) where T : unmanaged
+        {
+            using var stream = new MemoryStream();
+            builder.CreateBlob(stream, alignment);
+            return stream.ToArray();
+        }
+
+        public static Stream CreateBlob<T>(this IBlobBuilder<T> builder, Stream stream, int alignment = 0) where T : unmanaged
+        {
+            if (alignment <= 0) alignment = IntPtr.Size;
+            builder.Build(stream, 0, 0);
+            return stream;
+        }
+    }
+
+    public static class StreamExtension
+    {
+        public static unsafe void WriteValue<T>([NotNull] this Stream stream, ref T value) where T : unmanaged
+        {
+            fixed (T* valuePtr = &value)
+            {
+                var size = sizeof(T);
+                WriteValuePtr(stream, (byte*)valuePtr, size);
+            }
+        }
+
+        public static unsafe void WriteValuePtr([NotNull] this Stream stream, byte* valuePtr, int size)
+        {
+            // TODO: should handle endianness?
+            for (var i = 0; i < size; i++) stream.WriteByte(*(valuePtr + i));
+        }
+    }
+
+    public static class Utilities
+    {
+        public static long Align(long address)
+        {
+            return Align(address, IntPtr.Size);
+        }
+
+        public static long Align<T>(long address) where T : unmanaged
+        {
+            return Align(address, AlignOf<T>());
+        }
+
+        public static long Align(long address, int alignment)
+        {
+            if (alignment <= 0)
+                throw new ArgumentOutOfRangeException(nameof(alignment), "alignment must be greater than 0");
+            if (!PowerOfTwo(alignment))
+                throw new ArgumentOutOfRangeException(nameof(alignment), "alignment must be power of 2");
+            return (address + (alignment - 1)) & -alignment;
+
+            static bool PowerOfTwo(int n)
+            {
+                return (n & (n - 1)) == 0;
+            }
+        }
+
+        public static unsafe int AlignOf<T>() where T : unmanaged => sizeof(AlignHelper<T>) - sizeof(T);
+
+        struct AlignHelper<T> where T : unmanaged
+        {
+            public byte _;
+            public T Data;
+        }
+
+        public static unsafe long EnsurePatchPosition<T>(long patchPosition, long dataPosition) where T : unmanaged
+        {
+            return Align<T>(Math.Max(patchPosition, dataPosition + sizeof(T)));
         }
     }
 }
