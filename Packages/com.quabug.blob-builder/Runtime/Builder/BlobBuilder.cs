@@ -38,7 +38,12 @@ namespace Blob
             const BindingFlags fieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             foreach (var fieldInfo in typeof(T).GetFields(fieldFlags))
             {
+                // HACK: Marshal.Offset returns invalid value on IL2CPP back-end of Unity.
+#if ENABLE_IL2CPP
+                var fieldOffset = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.GetFieldOffset(fieldInfo);
+#else
                 var fieldOffset = Marshal.OffsetOf<T>(fieldInfo.Name).ToInt32();
+#endif
                 if (_fieldBuilderMap.TryGetValue(fieldOffset, out var builder))
                 {
                     // TODO: restrict on writing-size of field value?
