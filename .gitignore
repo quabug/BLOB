@@ -71,3 +71,4 @@ UserSettings/
 
 !/Blob.sln
 !/StandaloneLibrary/StandaloneLibrary.csproj
+!/StandaloneTests/StandaloneTests.csproj
