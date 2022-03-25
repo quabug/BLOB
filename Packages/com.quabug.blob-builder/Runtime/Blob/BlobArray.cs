@@ -6,6 +6,7 @@ namespace Blob
     {
         internal int Offset;
         private int _length;
+
         public int Length { get => _length; internal set => _length = value; }
 
         public ref T this[int index]
@@ -13,19 +14,27 @@ namespace Blob
             get
             {
                 if (index < 0 || index >= Length) throw new ArgumentOutOfRangeException($"index({index}) out of range[0-{Length})");
+                return ref *(UnsafePtr + index);
+            }
+        }
+
+        public T* UnsafePtr
+        {
+            get
+            {
                 fixed (void* thisPtr = &Offset)
                 {
-                    return ref *(T*)((byte*)thisPtr + index * sizeof(T));
+                    return (T*)((byte*) thisPtr + Offset);
                 }
             }
         }
 
-        public T* GetUnsafePtr()
+        public T[] ToArray()
         {
-            fixed (void* thisPtr = &Offset)
-            {
-                return (T*)((byte*) thisPtr + Offset);
-            }
+            var array = new T[Length];
+            // TODO: benchmark
+            for (var i = 0; i < Length; i++) array[i] = this[i];
+            return array;
         }
     }
 }

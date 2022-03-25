@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <LangVersion>8</LangVersion>
+        <AssemblyName>Blob</AssemblyName>
+        <RootNamespace>Blob</RootNamespace>
+        <PackageId>com.quabug.blob</PackageId>
+        <Title>BLOB</Title>
+        <Authors>quabug</Authors>
+        <Description>Build and use BLOB at runtime.</Description>
+        <Copyright>quabug</Copyright>
+        <RepositoryUrl>https://github.com/quabug/BlobBuilder</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Blob\BlobArray.cs">
+        <Link>Blob\BlobArray.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Blob\BlobNullTerminatedString.cs">
+        <Link>Blob\BlobNullTerminatedString.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Blob\BlobPtr.cs">
+        <Link>Blob\BlobPtr.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Blob\BlobString.cs">
+        <Link>Blob\BlobString.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Blob\ManagedBlobAssetReference.cs">
+        <Link>Blob\ManagedBlobAssetReference.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Blob\UnityBlobString.cs">
+        <Link>Blob\UnityBlobString.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\BlobArrayBuilder.cs">
+        <Link>Builder\BlobArrayBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\BlobBuilder.cs">
+        <Link>Builder\BlobBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\BlobNullTerminatedStringBuilder.cs">
+        <Link>Builder\BlobNullTerminatedStringBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\BlobPtrBuilder.cs">
+        <Link>Builder\BlobPtrBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\BlobStringBuilder.cs">
+        <Link>Builder\BlobStringBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\IBlobBuilder.cs">
+        <Link>Builder\IBlobBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\UnityBlobStringBuilder.cs">
+        <Link>Builder\UnityBlobStringBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Packages\com.quabug.blob-builder\Runtime\Builder\UnsafeBlobArrayBuilder.cs">
+        <Link>Builder\UnsafeBlobArrayBuilder.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    </ItemGroup>
+
+</Project>

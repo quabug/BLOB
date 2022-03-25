@@ -62,3 +62,12 @@ sysinfo.txt
 crashlytics-build.properties
 
 UserSettings/
+
+# .NET library
+/StandaloneLibrary/bin/
+/StandaloneLibrary/obj/
+/StandaloneTests/bin/
+/StandaloneTests/obj/
+
+!/Blob.sln
+!/StandaloneLibrary/StandaloneLibrary.csproj

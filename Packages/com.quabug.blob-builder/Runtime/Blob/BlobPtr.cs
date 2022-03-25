@@ -14,5 +14,16 @@
                 }
             }
         }
+
+        public T* UnsafePtr
+        {
+            get
+            {
+                fixed (void* thisPtr = &Offset)
+                {
+                    return (T*)((byte*) thisPtr + Offset);
+                }
+            }
+        }
     }
 }

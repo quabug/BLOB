@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandaloneLibrary", "StandaloneLibrary\StandaloneLibrary.csproj", "{1A0B0913-89DD-4710-87BC-126BDF81C58E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandaloneTests", "StandaloneTests\StandaloneTests.csproj", "{3398C9D1-8F43-4313-89DE-7EE7B1BEC4BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A0B0913-89DD-4710-87BC-126BDF81C58E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A0B0913-89DD-4710-87BC-126BDF81C58E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A0B0913-89DD-4710-87BC-126BDF81C58E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A0B0913-89DD-4710-87BC-126BDF81C58E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3398C9D1-8F43-4313-89DE-7EE7B1BEC4BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3398C9D1-8F43-4313-89DE-7EE7B1BEC4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3398C9D1-8F43-4313-89DE-7EE7B1BEC4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3398C9D1-8F43-4313-89DE-7EE7B1BEC4BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

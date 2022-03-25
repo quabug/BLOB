@@ -67,21 +67,21 @@ namespace Blob
 
     public static partial class BlobExtension
     {
-        public static ManagedBlobAssetReference<T> CreateManagedBlobAssetReference<T>(this IBlobBuilder<T> builder, int alignment = 0) where T : unmanaged
+        public static ManagedBlobAssetReference<T> CreateManagedBlobAssetReference<T>(this IBlobBuilder<T> builder) where T : unmanaged
         {
-            return new ManagedBlobAssetReference<T>(builder.CreateBlob(alignment));
+            return new ManagedBlobAssetReference<T>(builder.CreateBlob());
         }
 
-        public static byte[] CreateBlob<T>(this IBlobBuilder<T> builder, int alignment = 0) where T : unmanaged
+        public static byte[] CreateBlob<T>(this IBlobBuilder<T> builder) where T : unmanaged
         {
             using var stream = new MemoryStream();
-            builder.CreateBlob(stream, alignment);
+            builder.CreateBlob(stream);
+            stream.SetLength(Utilities.Align<T>(stream.Length));
             return stream.ToArray();
         }
 
-        public static Stream CreateBlob<T>(this IBlobBuilder<T> builder, Stream stream, int alignment = 0) where T : unmanaged
+        public static Stream CreateBlob<T>(this IBlobBuilder<T> builder, Stream stream) where T : unmanaged
         {
-            if (alignment <= 0) alignment = IntPtr.Size;
             builder.Build(stream, 0, 0);
             return stream;
         }

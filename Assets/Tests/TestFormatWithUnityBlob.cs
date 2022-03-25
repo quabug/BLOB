@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
-using Blob;
+﻿using System.Linq;
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 
-namespace Tests
+namespace Blob.Tests
 {
     using BlobArray = Unity.Entities.BlobArray<SimpleBlob>;
     using BlobArray2 = Unity.Entities.BlobArray<Unity.Entities.BlobArray<SimpleBlob>>;
@@ -224,7 +222,7 @@ namespace Tests
             ref var blobString = ref unityBuilder.ConstructRoot<BlobString>();
             unityBuilder.AllocateString(ref blobString, str);
             var unityBlob = unityBuilder.CreateBlobAssetReference<BlobString>(Allocator.Temp);
-            var blob = new UnityBlobStringBuilder(str).CreateUnityBlobAssetReference();
+            var blob = new EntitiesBlobStringBuilder(str).CreateUnityBlobAssetReference();
             Assert.AreEqual(unityBlob.Value.ToString(), blob.Value.ToString());
             AssertBlobEqual(unityBlob, blob);
         }
@@ -256,7 +254,7 @@ namespace Tests
 
             var builder = new BlobBuilder<ComplexBlob>();
             builder.SetBuilder(ref builder.Value.IntPtr, new UnityBlobPtrBuilder<int>(unityBlob.Value.IntPtr.Value));
-            builder.SetBuilder(ref builder.Value.String, new UnityBlobStringBuilder(unityBlob.Value.String.ToString()));
+            builder.SetBuilder(ref builder.Value.String, new EntitiesBlobStringBuilder(unityBlob.Value.String.ToString()));
             builder.Value.Int = unityBlob.Value.Int;
             builder.SetBuilder(ref builder.Value.IntArray, new UnityBlobArrayBuilder<int>(unityBlob.Value.IntArray.ToArray()));
             builder.Value.Long = unityBlob.Value.Long;

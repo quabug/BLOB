@@ -8,7 +8,6 @@ namespace Blob
         where TEncoding : Encoding, new()
     {
         public BlobNullTerminatedStringBuilder() : base(new byte[] { 0 }) {}
-        // TODO: optimize?
         public BlobNullTerminatedStringBuilder([NotNull] string str) : base(new TEncoding().GetBytes(str).Append((byte)0)) {}
     }
 }
