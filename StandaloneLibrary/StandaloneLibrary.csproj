@@ -14,6 +14,7 @@
         <RepositoryUrl>https://github.com/quabug/BlobBuilder</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <PackageLicenseUrl>MIT</PackageLicenseUrl>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

@@ -1,8 +1,0 @@
-{
-  "name": "com.quabug.blob-builder",
-  "description": "Build BLOB",
-  "version": "1.0.0",
-  "unity": "2020.3",
-  "displayName": "BlobBuilder",
-  "type": "library"
-}
