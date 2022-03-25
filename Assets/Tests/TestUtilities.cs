@@ -70,6 +70,13 @@ namespace Blob.Tests
             Assert.Catch<ArgumentOutOfRangeException>(() => Utilities.Align(0, 1000));
         }
 
+
+        struct Tuple<T1, T2>
+        {
+            private T1 _;
+            private T2 __;
+        }
+
         [Test]
         public void should_align_by_type()
         {
@@ -77,10 +84,10 @@ namespace Blob.Tests
             Assert.AreEqual(2, Utilities.AlignOf<short>());
             Assert.AreEqual(4, Utilities.AlignOf<int>());
             Assert.AreEqual(8, Utilities.AlignOf<long>());
-            Assert.AreEqual(4, Utilities.AlignOf<(short, int)>());
-            Assert.AreEqual(8, Utilities.AlignOf<(long, byte)>());
-            Assert.AreEqual(4, Utilities.AlignOf<(byte, (byte, int))>());
-            Assert.AreEqual(8, Utilities.AlignOf<(int, (byte, long))>());
+            Assert.AreEqual(4, Utilities.AlignOf<Tuple<short, int>>());
+            Assert.AreEqual(8, Utilities.AlignOf<Tuple<long, short>>());
+            Assert.AreEqual(4, Utilities.AlignOf<Tuple<byte, Tuple<byte, int>>>());
+            Assert.AreEqual(8, Utilities.AlignOf<Tuple<int, Tuple<long, byte>>>());
         }
     }
 }
