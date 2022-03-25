@@ -1,0 +1,22 @@
+{
+    "name": "BlobBuilder",
+    "rootNamespace": "",
+    "references": [
+        "GUID:734d92eba21c94caba915361bd5ac177"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.entities",
+            "expression": "0.14",
+            "define": "UNITY_BLOB"
+        }
+    ],
+    "noEngineReferences": false
+}
