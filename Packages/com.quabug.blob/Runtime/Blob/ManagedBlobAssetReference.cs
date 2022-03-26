@@ -2,7 +2,7 @@
 {
     public unsafe class ManagedBlobAssetReference<T> where T : unmanaged
     {
-        private byte[] _blob;
+        private readonly byte[] _blob;
         private readonly T* _value;
 
         public ref T Value => ref *_value;

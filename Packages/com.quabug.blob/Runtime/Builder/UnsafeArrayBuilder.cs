@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Annotations;
 
 namespace Blob
 {
@@ -15,7 +14,7 @@ namespace Blob
                 throw new ArgumentException($"{nameof(TArray)} must has and only has an int `Offset` field and an int `Length` field");
         }
 
-        private byte* _ptr;
+        private readonly byte* _ptr;
         private int _length;
 
         public UnsafeArrayBuilder(TValue* arrayPtr, int length)
