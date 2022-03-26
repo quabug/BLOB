@@ -2,11 +2,11 @@
 
 namespace Blob
 {
-    public class UnityBlobPtrBuilder<T> : BlobPtrBuilder<T, Unity.Entities.BlobPtr<T>> where T : unmanaged
+    public class UnityBlobPtrBuilder<T> : PtrBuilder<T, Unity.Entities.BlobPtr<T>> where T : unmanaged
     {
         public UnityBlobPtrBuilder() {}
         public UnityBlobPtrBuilder(T value) : base(value) {}
-        public UnityBlobPtrBuilder(IBlobBuilder<T> builder) : base(builder) {}
+        public UnityBlobPtrBuilder(IBuilder<T> builder) : base(builder) {}
     }
 }
 

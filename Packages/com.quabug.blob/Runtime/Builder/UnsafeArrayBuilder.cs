@@ -1,32 +1,30 @@
 ﻿using System;
 using System.IO;
-using JetBrains.Annotations;
 
 namespace Blob
 {
-    public unsafe class UnsafeBlobArrayBuilder<TValue, TArray> : IBlobBuilder<TArray>
+    public unsafe class UnsafeArrayBuilder<TValue, TArray> : Builder<TArray>
         where TValue : unmanaged
         where TArray : unmanaged
     {
-        static UnsafeBlobArrayBuilder()
+        static UnsafeArrayBuilder()
         {
             // HACK: assume `BlobArray` has and only has an int `offset` field and an int `length` field.
             if (sizeof(TArray) != (sizeof(int) + sizeof(int)))
                 throw new ArgumentException($"{nameof(TArray)} must has and only has an int `Offset` field and an int `Length` field");
         }
 
-        private byte* _ptr;
+        private readonly byte* _ptr;
         private int _length;
 
-        public UnsafeBlobArrayBuilder(TValue* arrayPtr, int length)
+        public UnsafeArrayBuilder(TValue* arrayPtr, int length)
         {
             _ptr = (byte*)arrayPtr;
             _length = sizeof(TValue) * length;
         }
 
-        public virtual long Build([NotNull] Stream stream, long dataPosition, long patchPosition)
+        protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
         {
-            patchPosition = Utilities.EnsurePatchPosition<TArray>(patchPosition, dataPosition);
             var offset = (int)(patchPosition - dataPosition);
             stream.Seek(dataPosition, SeekOrigin.Begin);
             stream.WriteValue(ref offset);
