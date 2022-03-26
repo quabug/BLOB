@@ -47,7 +47,7 @@ namespace Blob.Tests
             unityData.Double = 4;
             var unityBlob = unityBuilder.CreateBlobAssetReference<SimpleBlob>(Allocator.Temp);
 
-            var blobBuilder = new BlobBuilder<SimpleBlob>(unityBlob.Value);
+            var blobBuilder = new ValueBuilder<SimpleBlob>(unityBlob.Value);
             var data = blobBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -241,9 +241,9 @@ namespace Blob.Tests
         public void should_have_same_blob_for_complex_blob()
         {
             ref var unityBlobRoot = ref unityBuilder.ConstructRoot<ComplexBlob>();
-            unityBuilder.Allocate(ref unityBlobRoot.IntPtr) = 1;
             unityBuilder.AllocateString(ref unityBlobRoot.String, "12345");
-            unityBlobRoot.Int = 333;
+            unityBuilder.SetPointer(ref unityBlobRoot.IntPtr, ref unityBlobRoot.Int);
+            unityBuilder.Allocate(ref unityBlobRoot.IntPtr) = 1;
             var longArrayBuilder = unityBuilder.Allocate(ref unityBlobRoot.IntArray, 3);
             for (var i = 0; i < 3; i++) longArrayBuilder[i] = 30 + i;
             unityBlobRoot.Long = 777;
@@ -252,12 +252,12 @@ namespace Blob.Tests
             for (var i = 0; i < 3; i++) floatArrayBuilder[i] = 100 + i;
             var unityBlob = unityBuilder.CreateBlobAssetReference<ComplexBlob>(Allocator.Temp);
 
-            var builder = new BlobBuilder<ComplexBlob>();
-            builder.SetBuilder(ref builder.Value.IntPtr, new UnityBlobPtrBuilder<int>(unityBlob.Value.IntPtr.Value));
+            var builder = new StructBuilder<ComplexBlob>();
             builder.SetBuilder(ref builder.Value.String, new EntitiesBlobStringBuilder(unityBlob.Value.String.ToString()));
-            builder.Value.Int = unityBlob.Value.Int;
+            builder.SetBuilder(ref builder.Value.Int, unityBlob.Value.Int);
+            builder.SetBuilder(ref builder.Value.IntPtr, new UnityBlobRefPtrBuilder<int>(builder.GetBuilder(ref builder.Value.Int)));
             builder.SetBuilder(ref builder.Value.IntArray, new UnityBlobArrayBuilder<int>(unityBlob.Value.IntArray.ToArray()));
-            builder.Value.Long = unityBlob.Value.Long;
+            builder.SetBuilder(ref builder.Value.Long, unityBlob.Value.Long);
             builder.SetBuilder(ref builder.Value.FloatArrayPtr, new UnityBlobPtrBuilder<Unity.Entities.BlobArray<float>>( new UnityBlobArrayBuilder<float>(unityBlob.Value.FloatArrayPtr.Value.ToArray())));
             var blob = builder.CreateUnityBlobAssetReference();
             AssertBlobEqual(unityBlob, blob);

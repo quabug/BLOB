@@ -1,13 +1,14 @@
 ﻿#if UNITY_BLOB
 
 using System.IO;
+using JetBrains.Annotations;
 using Unity.Entities;
 
 namespace Blob
 {
-    public static partial class BlobExtension
+    public static partial class BuilderExtension
     {
-        public static BlobAssetReference<T> CreateUnityBlobAssetReference<T>(this IBlobBuilder<T> builder) where T : unmanaged
+        public static BlobAssetReference<T> CreateUnityBlobAssetReference<T>([NotNull] this IBuilder<T> builder) where T : unmanaged
         {
             using var stream = new MemoryStream();
             builder.CreateBlob(stream);

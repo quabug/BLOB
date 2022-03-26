@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public class EntitiesBlobStringBuilder : BlobArrayBuilder<byte, Unity.Entities.BlobString>
+    public class EntitiesBlobStringBuilder : ArrayBuilder<byte, Unity.Entities.BlobString>
     {
         public EntitiesBlobStringBuilder() {}
         public EntitiesBlobStringBuilder([NotNull] string str) : base(Encoding.UTF8.GetBytes(str).Append((byte)0)) {}
