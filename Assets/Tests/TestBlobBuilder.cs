@@ -133,7 +133,7 @@ namespace Blob.Tests
                 .Select(builders => new ArrayBuilder<BlobPtr<BlobString>>(builders))
             );
             builder.SetBuilder(ref builder.Value.StringArray2Ptr, string2Builder);
-            builder.SetBuilder(ref builder.Value.String, new BlobStringBuilder("rfeuivjl, 放大镜考过托福i哦热情"));
+            builder.SetString(ref builder.Value.String, "rfeuivjl, 放大镜考过托福i哦热情");
             builder.SetPointer(ref builder.Value.StringPtr, builder.GetBuilder(ref builder.Value.String));
             builder.SetPointer(ref builder.Value.StringPtrPtr, builder.GetBuilder(ref builder.Value.StringPtr));
             builder.SetValue(ref builder.Value.Long, 31789457893L);

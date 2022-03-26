@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -63,6 +64,19 @@ namespace Blob
             builder.SetBuilder(ref field, valueBuilder);
             field = value;
             return valueBuilder;
+        }
+
+        public static StringBuilder<TEncoding> SetString<T, TEncoding>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobString<TEncoding> field,
+            string value
+        )
+            where T : unmanaged
+            where TEncoding : Encoding, new()
+        {
+            var stringBuilder = new StringBuilder<TEncoding>(value);
+            builder.SetBuilder(ref field, stringBuilder);
+            return stringBuilder;
         }
     }
 }
