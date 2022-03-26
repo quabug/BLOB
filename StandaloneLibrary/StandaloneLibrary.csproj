@@ -38,56 +38,17 @@
             <PackagePath>README.md</PackagePath>
         </Content>
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\BlobArray.cs">
-        <Link>Blob\BlobArray.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\BlobNullTerminatedString.cs">
-        <Link>Blob\BlobNullTerminatedString.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\BlobPtr.cs">
-        <Link>Blob\BlobPtr.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\BlobString.cs">
-        <Link>Blob\BlobString.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\ManagedBlobAssetReference.cs">
-        <Link>Blob\ManagedBlobAssetReference.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\UnityBlobString.cs">
-        <Link>Blob\UnityBlobString.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\ArrayBuilder.cs">
-        <Link>Builder\ArrayBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\RefPtrBuilder.cs">
-        <Link>Builder\RefPtrBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\StructBuilder.cs">
-        <Link>Builder\StructBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\NullTerminatedStringBuilder.cs">
-        <Link>Builder\NullTerminatedStringBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\PtrBuilder.cs">
-        <Link>Builder\PtrBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\StringBuilder.cs">
-        <Link>Builder\StringBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\IBuilder.cs">
-        <Link>Builder\IBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\UnityStringBuilder.cs">
-        <Link>Builder\UnityStringBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\UnsafeArrayBuilder.cs">
-        <Link>Builder\UnsafeArrayBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\ValueBuilder.cs">
-        <Link>Builder\ValueBuilder.cs</Link>
-      </Compile>
+        <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\*.cs">
+            <Link>Blob\%(FileName)%(Extension)</Link>
+        </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\*.cs">
+            <Link>Builder\%(FileName)%(Extension)</Link>
+        </Compile>
+    </ItemGroup>
+    
 </Project>

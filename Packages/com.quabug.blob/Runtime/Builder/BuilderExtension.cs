@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using JetBrains.Annotations;
 
 namespace Blob
 {
@@ -21,6 +23,28 @@ namespace Blob
         {
             builder.Build(stream, 0, 0);
             return stream;
+        }
+
+        public static void SetPointer<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobPtr<TValue> field,
+            [NotNull] IBuilder<TValue> refBuilder
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            builder.SetBuilder(ref field, new RefPtrBuilder<TValue>(refBuilder));
+        }
+
+        public static void SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] IEnumerable<TValue> items
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            builder.SetBuilder(ref field, new ArrayBuilder<TValue>(items));
         }
     }
 }

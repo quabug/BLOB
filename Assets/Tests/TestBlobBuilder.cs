@@ -103,6 +103,7 @@ namespace Blob.Tests
         {
             public BlobPtr<int> IntPtr;
             public byte Byte;
+            public BlobPtr<float> FloatPtr;
             public BlobArray<float> FloatArray;
             public BlobArray<BlobArray<BlobPtr<BlobString>>> StringArray2Ptr;
             public BlobString String;
@@ -118,7 +119,9 @@ namespace Blob.Tests
         {
             var builder = new StructBuilder<ComplexBlob>();
             builder.SetBuilder(ref builder.Value.Byte, (byte)222);
-            builder.SetBuilder(ref builder.Value.FloatArray, new ArrayBuilder<float>(new float[] { 1, 2, 3, 4, 5 }));
+            var floatArrayBuilder = new ArrayBuilder<float>(new float[] { 1, 2, 3, 4, 5 });
+            builder.SetBuilder(ref builder.Value.FloatArray, floatArrayBuilder);
+            builder.SetPointer(ref builder.Value.FloatPtr, floatArrayBuilder[2]);
             var string2 = new[]
             {
                 new[] { "fdjkl", "fjdklfd", "uerwuiorew", "fvjkfdauio", "放大镜看浪费大家快乐", "发动机看来放大12321fjdklfdas" },
@@ -131,17 +134,18 @@ namespace Blob.Tests
             );
             builder.SetBuilder(ref builder.Value.StringArray2Ptr, string2Builder);
             builder.SetBuilder(ref builder.Value.String, new BlobStringBuilder("rfeuivjl, 放大镜考过托福i哦热情"));
-            builder.SetBuilder(ref builder.Value.StringPtr, new RefPtrBuilder<BlobString>(builder.GetBuilder(ref builder.Value.String)));
-            builder.SetBuilder(ref builder.Value.StringPtrPtr, new RefPtrBuilder<BlobPtr<BlobString>>(builder.GetBuilder(ref builder.Value.StringPtr)));
+            builder.SetPointer(ref builder.Value.StringPtr, builder.GetBuilder(ref builder.Value.String));
+            builder.SetPointer(ref builder.Value.StringPtrPtr, builder.GetBuilder(ref builder.Value.StringPtr));
             builder.SetBuilder(ref builder.Value.Long, 31789457893L);
             builder.SetBuilder(ref builder.Value.Int, 13278);
-            builder.SetBuilder(ref builder.Value.IntPtr, new RefPtrBuilder<int>(builder.GetBuilder(ref builder.Value.Int)));
+            builder.SetPointer(ref builder.Value.IntPtr, builder.GetBuilder(ref builder.Value.Int));
             builder.SetBuilder(ref builder.Value.UnicodeStringPtr, new PtrBuilder<BlobString<UnicodeEncoding>>(new StringBuilder<UnicodeEncoding>("放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl")));
 
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.AreEqual(13278, blob.Value.IntPtr.Value);
             Assert.AreEqual(222, blob.Value.Byte);
             Assert.That(blob.Value.FloatArray.ToArray(), Is.EquivalentTo(new float[] { 1, 2, 3, 4, 5 }));
+            Assert.AreEqual(3, blob.Value.FloatPtr.Value);
             var string2Flat = string2.SelectMany(s => s).ToArray();
             var index = 0;
             for (var i = 0; i < blob.Value.StringArray2Ptr.Length; i++)
