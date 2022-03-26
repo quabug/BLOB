@@ -118,7 +118,7 @@ namespace Blob.Tests
         public void should_build_blob_from_complex_blob_structure()
         {
             var builder = new StructBuilder<ComplexBlob>();
-            builder.SetBuilder(ref builder.Value.Byte, (byte)222);
+            builder.SetValue(ref builder.Value.Byte, (byte)222);
             var floatArrayBuilder = new ArrayBuilder<float>(new float[] { 1, 2, 3, 4, 5 });
             builder.SetBuilder(ref builder.Value.FloatArray, floatArrayBuilder);
             builder.SetPointer(ref builder.Value.FloatPtr, floatArrayBuilder[2]);
@@ -136,8 +136,8 @@ namespace Blob.Tests
             builder.SetBuilder(ref builder.Value.String, new BlobStringBuilder("rfeuivjl, 放大镜考过托福i哦热情"));
             builder.SetPointer(ref builder.Value.StringPtr, builder.GetBuilder(ref builder.Value.String));
             builder.SetPointer(ref builder.Value.StringPtrPtr, builder.GetBuilder(ref builder.Value.StringPtr));
-            builder.SetBuilder(ref builder.Value.Long, 31789457893L);
-            builder.SetBuilder(ref builder.Value.Int, 13278);
+            builder.SetValue(ref builder.Value.Long, 31789457893L);
+            builder.SetValue(ref builder.Value.Int, 13278);
             builder.SetPointer(ref builder.Value.IntPtr, builder.GetBuilder(ref builder.Value.Int));
             builder.SetBuilder(ref builder.Value.UnicodeStringPtr, new PtrBuilder<BlobString<UnicodeEncoding>>(new StringBuilder<UnicodeEncoding>("放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl")));
 

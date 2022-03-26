@@ -25,7 +25,7 @@ namespace Blob
             return stream;
         }
 
-        public static void SetPointer<T, TValue>(
+        public static RefPtrBuilder<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobPtr<TValue> field,
             [NotNull] IBuilder<TValue> refBuilder
@@ -33,10 +33,12 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            builder.SetBuilder(ref field, new RefPtrBuilder<TValue>(refBuilder));
+            var refPtrBuilder = new RefPtrBuilder<TValue>(refBuilder);
+            builder.SetBuilder(ref field, refPtrBuilder);
+            return refPtrBuilder;
         }
 
-        public static void SetArray<T, TValue>(
+        public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] IEnumerable<TValue> items
@@ -44,7 +46,23 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            builder.SetBuilder(ref field, new ArrayBuilder<TValue>(items));
+            var arrayBuilder = new ArrayBuilder<TValue>(items);
+            builder.SetBuilder(ref field, arrayBuilder);
+            return arrayBuilder;
+        }
+
+        public static ValueBuilder<TField> SetValue<T, TField>(
+            [NotNull] this StructBuilder<T> builder,
+            ref TField field,
+            TField value
+        )
+            where T : unmanaged
+            where TField : unmanaged
+        {
+            var valueBuilder = new ValueBuilder<TField>(value);
+            builder.SetBuilder(ref field, valueBuilder);
+            field = value;
+            return valueBuilder;
         }
     }
 }

@@ -22,12 +22,6 @@ namespace Blob
             _builders.Add((fieldOffset, builder));
         }
 
-        public void SetBuilder<TField>(ref TField field, TField value) where TField : unmanaged
-        {
-            SetBuilder(ref field, new ValueBuilder<TField>(value));
-            field = value;
-        }
-
         public IBuilder<TField> GetBuilder<TField>(ref TField field) where TField : unmanaged
         {
             var fieldOffset = GetFieldOffset(ref field);
