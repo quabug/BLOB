@@ -13,7 +13,8 @@ namespace Benchmark
             var iterCount = totalSize / chunkSize;
             var chunk = new byte[chunkSize];
             var stream = new MemoryStream();
-            const int measurementCount = 3;
+            const int measurementCount = 10;
+            const int warmupCount = 2;
 
             Measure.Method(() =>
                 {
@@ -22,6 +23,7 @@ namespace Benchmark
                 .SampleGroup("WriteByte")
                 .SetUp(() => stream = new MemoryStream(totalSize))
                 .MeasurementCount(measurementCount)
+                .WarmupCount(warmupCount)
                 .IterationsPerMeasurement(iterCount)
                 .Run()
             ;
@@ -37,6 +39,7 @@ namespace Benchmark
                 .SampleGroup("UnmanagedStream.CopyTo")
                 .SetUp(() => stream = new MemoryStream(totalSize))
                 .MeasurementCount(measurementCount)
+                .WarmupCount(warmupCount)
                 .IterationsPerMeasurement(iterCount)
                 .Run()
             ;
@@ -49,6 +52,7 @@ namespace Benchmark
                 .SampleGroup("BinaryWrite")
                 .SetUp(() => stream = new MemoryStream(totalSize))
                 .MeasurementCount(measurementCount)
+                .WarmupCount(warmupCount)
                 .IterationsPerMeasurement(iterCount)
                 .Run()
             ;
@@ -61,6 +65,7 @@ namespace Benchmark
                 .SampleGroup("Stream.Write")
                 .SetUp(() => stream = new MemoryStream(totalSize))
                 .MeasurementCount(measurementCount)
+                .WarmupCount(warmupCount)
                 .IterationsPerMeasurement(iterCount)
                 .Run()
             ;
