@@ -1,4 +1,4 @@
-name: unity-test-and-build
+name: unity-test
 
 on:
   pull_request:
@@ -24,6 +24,6 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          customParameters: -scriptingBackend ${{ matrix.backend }}
+          customParameters: -scriptingBackend ${{ matrix.backend }} -testCategory "!benchmark"
           projectPath: .
           githubToken: ${{ secrets.GITHUB_TOKEN }}
