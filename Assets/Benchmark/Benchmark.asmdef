@@ -1,11 +1,10 @@
 {
-    "name": "Tests",
+    "name": "Benchmark",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "BlobBuilder",
-        "Unity.Entities"
+        "Unity.PerformanceTesting"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -18,12 +17,6 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [
-        {
-            "name": "com.unity.entities",
-            "expression": "0.14",
-            "define": "UNITY_BLOB"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }

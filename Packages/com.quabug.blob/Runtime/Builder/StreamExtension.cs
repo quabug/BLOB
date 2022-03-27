@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -17,7 +18,11 @@ namespace Blob
         public static unsafe void WriteValuePtr([NotNull] this Stream stream, byte* valuePtr, int size)
         {
             // TODO: should handle endianness?
+#if UNITY_2021_2_OR_NEWER || NETSTANDARD2_1_OR_GREATER
+            stream.Write(new ReadOnlySpan<byte>(valuePtr, size));
+#else
             for (var i = 0; i < size; i++) stream.WriteByte(*(valuePtr + i));
+#endif
         }
     }
 }
