@@ -18,6 +18,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.entities",
+            "expression": "0.14",
+            "define": "UNITY_BLOB"
+        }
+    ],
     "noEngineReferences": false
 }

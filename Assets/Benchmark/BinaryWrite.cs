@@ -1,16 +1,19 @@
+using System;
 using System.IO;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 
 namespace Benchmark
 {
+    [TestFixture]
+    [Category("benchmark")]
     public class BinaryWriteMethods
     {
         [Test, Performance]
-        public unsafe void Write1MB([Values(8, 128, 512, 1024, 1024*256)] int chunkSize)
+        public unsafe void Benchmark([Values(8, 128, 512, 1024, 1024*8, 1024*64, 1024*256)] int chunkSize)
         {
             var totalSize = 1024 * 1024;
-            var iterCount = totalSize / chunkSize;
+            var iterCount = Math.Min(totalSize / chunkSize, 1024);
             var chunk = new byte[chunkSize];
             var stream = new MemoryStream();
             const int measurementCount = 10;
@@ -62,7 +65,23 @@ namespace Benchmark
                 {
                     stream.Write(chunk);
                 })
-                .SampleGroup("Stream.Write")
+                .SampleGroup("Stream.Write(Span)")
+                .SetUp(() => stream = new MemoryStream(totalSize))
+                .MeasurementCount(measurementCount)
+                .WarmupCount(warmupCount)
+                .IterationsPerMeasurement(iterCount)
+                .Run()
+            ;
+
+            Measure.Method(() =>
+                {
+                    fixed (void* ptr = &chunk[0])
+                    {
+                        var span = new ReadOnlySpan<byte>(ptr, chunk.Length);
+                        stream.Write(span);
+                    }
+                })
+                .SampleGroup("Stream.Write(pointer->Span)")
                 .SetUp(() => stream = new MemoryStream(totalSize))
                 .MeasurementCount(measurementCount)
                 .WarmupCount(warmupCount)

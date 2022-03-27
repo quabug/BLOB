@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -39,7 +40,7 @@ namespace Blob
             return refPtrBuilder;
         }
 
-        public static ArrayBuilder<TValue> SetArray<T, TValue>(
+        public static RawArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] IEnumerable<TValue> items
@@ -47,7 +48,20 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilder<TValue>(items);
+            var arrayBuilder = new RawArrayBuilder<TValue>(items.ToArray());
+            builder.SetBuilder(ref field, arrayBuilder);
+            return arrayBuilder;
+        }
+
+        public static RawArrayBuilder<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] TValue[] items
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var arrayBuilder = new RawArrayBuilder<TValue>(items);
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#if UNITY_BLOB
+
+using System.Linq;
 using NUnit.Framework;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -293,3 +295,5 @@ namespace Blob.Tests
     }
 
 }
+
+#endif
