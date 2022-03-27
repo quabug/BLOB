@@ -17,7 +17,8 @@ namespace Blob
         public static unsafe void WriteValuePtr([NotNull] this Stream stream, byte* valuePtr, int size)
         {
             // TODO: should handle endianness?
-            for (var i = 0; i < size; i++) stream.WriteByte(*(valuePtr + i));
+            using var unmanagedMemoryStream = new UnmanagedMemoryStream(valuePtr, size);
+            unmanagedMemoryStream.CopyTo(stream);
         }
     }
 }

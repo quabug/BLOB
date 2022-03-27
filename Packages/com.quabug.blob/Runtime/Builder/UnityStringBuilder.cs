@@ -4,9 +4,9 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public class UnityStringBuilder : ArrayBuilder<byte, UnityBlobString>
+    public class UnityStringBuilder : UnsafeArrayBuilder<byte, UnityBlobString>
     {
         public UnityStringBuilder() : base(new byte[] { 0 }) {}
-        public UnityStringBuilder([NotNull] string str) : base(new UTF8Encoding().GetBytes(str).Append((byte)0)) {}
+        public UnityStringBuilder([NotNull] string str) : base(new UTF8Encoding().GetBytes(str).Append((byte)0).ToArray()) {}
     }
 }
