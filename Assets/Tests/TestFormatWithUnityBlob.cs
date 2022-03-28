@@ -67,7 +67,7 @@ namespace Blob.Tests
             unityData.Double = 4;
             var unityBlob = unityBuilder.CreateBlobAssetReference<BlobPtr>(Allocator.Temp);
 
-            var blobBuilder = new UnityBlobPtrBuilder<SimpleBlob>(unityBlob.Value.Value);
+            var blobBuilder = new UnityBlobPtrBuilderWithNewValue<SimpleBlob>(unityBlob.Value.Value);
             var data = blobBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -80,7 +80,7 @@ namespace Blob.Tests
             unityBuilder.Allocate(ref unityDataPtr) = 999;
             var unityBlob = unityBuilder.CreateBlobAssetReference<Unity.Entities.BlobPtr<int>>(Allocator.Temp);
 
-            var blobBuilder = new UnityBlobPtrBuilder<int>(999);
+            var blobBuilder = new UnityBlobPtrBuilderWithNewValue<int>(999);
             var data = blobBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -119,8 +119,8 @@ namespace Blob.Tests
             unityData.Double = 4;
             var unityBlob = unityBuilder.CreateBlobAssetReference<BlobPtr2>(Allocator.Temp);
 
-            var blobPtrBuilder = new UnityBlobPtrBuilder<SimpleBlob>(unityBlob.Value.Value.Value);
-            var blobPtr2Builder = new UnityBlobPtrBuilder<BlobPtr>(blobPtrBuilder);
+            var blobPtrBuilder = new UnityBlobPtrBuilderWithNewValue<SimpleBlob>(unityBlob.Value.Value.Value);
+            var blobPtr2Builder = new UnityBlobPtrBuilderWithNewValue<BlobPtr>(blobPtrBuilder);
             var data = blobPtr2Builder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -148,7 +148,7 @@ namespace Blob.Tests
             var arrayBuilders = Enumerable.Range(0, length)
                 .Select(index => new UnityBlobArrayBuilder<SimpleBlob>(unityBlob.Value[index].ToArray()))
             ;
-            var blobBuilder = new UnityBlobArrayBuilder<BlobArray>(arrayBuilders);
+            var blobBuilder = new UnityBlobArrayBuilderWithItemBuilders<BlobArray>(arrayBuilders);
             var data = blobBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -172,10 +172,10 @@ namespace Blob.Tests
 
             var builders = Enumerable.Range(0, length)
                 .Select(index => unityBlob.Value[index].Value)
-                .Select(data => new UnityBlobPtrBuilder<SimpleBlob>(data))
+                .Select(data => new UnityBlobPtrBuilderWithNewValue<SimpleBlob>(data))
                 .ToArray()
             ;
-            var blobBuilder = new UnityBlobArrayBuilder<BlobPtr>(builders);
+            var blobBuilder = new UnityBlobArrayBuilderWithItemBuilders<BlobPtr>(builders);
             var data = blobBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -203,7 +203,7 @@ namespace Blob.Tests
                 .ToArray()
             ;
             var blobArrayBuilder = new UnityBlobArrayBuilder<SimpleBlob>(values);
-            var blobPtrBuilder = new UnityBlobPtrBuilder<BlobArray>(blobArrayBuilder);
+            var blobPtrBuilder = new UnityBlobPtrBuilderWithNewValue<BlobArray>(blobArrayBuilder);
             var data = blobPtrBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -263,7 +263,7 @@ namespace Blob.Tests
             builder.SetArray(ref builder.Value.IntArray, unityBlob.Value.IntArray.ToArray());
             builder.SetValue(ref builder.Value.Float, unityBlob.Value.Float);
             var blobArrayBuilder = new UnityBlobArrayBuilder<float>(unityBlob.Value.FloatArrayPtr.Value.ToArray());
-            builder.SetBuilder(ref builder.Value.FloatArrayPtr, new UnityBlobPtrBuilder<Unity.Entities.BlobArray<float>>(blobArrayBuilder));
+            builder.SetBuilder(ref builder.Value.FloatArrayPtr, new UnityBlobPtrBuilderWithNewValue<Unity.Entities.BlobArray<float>>(blobArrayBuilder));
             var blob = builder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, blob);

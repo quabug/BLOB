@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public class NullTerminatedStringBuilder<TEncoding> : RawArrayBuilder<byte, BlobNullTerminatedString<TEncoding>>
+    public class NullTerminatedStringBuilder<TEncoding> : ArrayBuilder<byte, BlobNullTerminatedString<TEncoding>>
         where TEncoding : Encoding, new()
     {
         public NullTerminatedStringBuilder() : base(new byte[] { 0 }) {}

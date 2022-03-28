@@ -4,20 +4,21 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public unsafe class RefPtrBuilder<TValue, TPtr> : Builder<TPtr>
+    public unsafe class PtrBuilderWithRefBuilder<TValue, TPtr> : Builder<TPtr>
         where TValue : unmanaged
         where TPtr : unmanaged
     {
         [NotNull] private readonly IBuilder<TValue> _refBuilder;
+        public IBuilder<TValue> ValueBuilder => _refBuilder;
 
-        static RefPtrBuilder()
+        static PtrBuilderWithRefBuilder()
         {
             // HACK: assume `BlobPtr` has and only has an int `offset` field.
             if (sizeof(TPtr) != sizeof(int))
                 throw new ArgumentException($"{nameof(TPtr)} must has and only has an int `Offset` field");
         }
 
-        public RefPtrBuilder([NotNull] IBuilder<TValue> refBuilder)
+        public PtrBuilderWithRefBuilder([NotNull] IBuilder<TValue> refBuilder)
         {
             _refBuilder = refBuilder;
         }
@@ -31,8 +32,8 @@ namespace Blob
         }
     }
 
-    public class RefPtrBuilder<T> : RefPtrBuilder<T, BlobPtr<T>> where T : unmanaged
+    public class PtrBuilderWithRefBuilder<T> : PtrBuilderWithRefBuilder<T, BlobPtr<T>> where T : unmanaged
     {
-        public RefPtrBuilder([NotNull] IBuilder<T> builder) : base(builder) {}
+        public PtrBuilderWithRefBuilder([NotNull] IBuilder<T> builder) : base(builder) {}
     }
 }

@@ -128,18 +128,18 @@ namespace Blob.Tests
                 new[] { "fjdklfd", "uerwuiorew", "fvjkfdauio", "放大镜看浪费大家快乐", "发动机看来放大12321fjdklfdas" },
                 new[] { "uerwuiorew", "fvjkfdauio", "放大镜看浪费大家快乐", "发动机看来放大12321fjdklfdas" },
             };
-            var string2Builder = new ArrayBuilder<BlobArray<BlobPtr<BlobString>>>( string2
-                .Select(stringArray => stringArray.Select(str => new PtrBuilder<BlobString>(new BlobStringBuilder(str))))
-                .Select(builders => new ArrayBuilder<BlobPtr<BlobString>>(builders))
-            );
-            builder.SetBuilder(ref builder.Value.StringArray2Ptr, string2Builder);
+            var string2Builder = string2
+                .Select(stringArray => stringArray.Select(str => new PtrBuilderWithNewValue<BlobString>(new BlobStringBuilder(str))))
+                .Select(builders => new ArrayBuilderWithItemBuilders<BlobPtr<BlobString>>(builders))
+            ;
+            builder.SetArray(ref builder.Value.StringArray2Ptr, string2Builder);
             builder.SetString(ref builder.Value.String, "rfeuivjl, 放大镜考过托福i哦热情");
             builder.SetPointer(ref builder.Value.StringPtr, builder.GetBuilder(ref builder.Value.String));
             builder.SetPointer(ref builder.Value.StringPtrPtr, builder.GetBuilder(ref builder.Value.StringPtr));
             builder.SetValue(ref builder.Value.Long, 31789457893L);
             builder.SetValue(ref builder.Value.Int, 13278);
             builder.SetPointer(ref builder.Value.IntPtr, builder.GetBuilder(ref builder.Value.Int));
-            builder.SetBuilder(ref builder.Value.UnicodeStringPtr, new PtrBuilder<BlobString<UnicodeEncoding>>(new StringBuilder<UnicodeEncoding>("放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl")));
+            builder.SetBuilder(ref builder.Value.UnicodeStringPtr, new PtrBuilderWithNewValue<BlobString<UnicodeEncoding>>(new StringBuilder<UnicodeEncoding>("放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl")));
 
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.AreEqual(13278, blob.Value.IntPtr.Value);
@@ -176,7 +176,7 @@ namespace Blob.Tests
 
         unsafe void AssertPtrEqual<T>(T value) where T : unmanaged
         {
-            var builder = new PtrBuilder<T>(value);
+            var builder = new PtrBuilderWithNewValue<T>(value);
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.AreEqual(value, blob.Value.Value);
             MemCmp(ref value, SubBlob(blob.Blob, sizeof(BlobPtr<T>), sizeof(T)));
