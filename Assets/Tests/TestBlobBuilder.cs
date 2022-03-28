@@ -129,7 +129,7 @@ namespace Blob.Tests
                 new[] { "uerwuiorew", "fvjkfdauio", "放大镜看浪费大家快乐", "发动机看来放大12321fjdklfdas" },
             };
             var string2Builder = string2
-                .Select(stringArray => stringArray.Select(str => new PtrBuilderWithRefBuilder<BlobString>(new BlobStringBuilder(str))))
+                .Select(stringArray => stringArray.Select(str => new PtrBuilderWithNewValue<BlobString>(new BlobStringBuilder(str))))
                 .Select(builders => new ArrayBuilderWithItemBuilders<BlobPtr<BlobString>>(builders))
             ;
             builder.SetArray(ref builder.Value.StringArray2Ptr, string2Builder);

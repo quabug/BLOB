@@ -54,7 +54,7 @@ namespace Blob
             fixed (void* arrayPtr = &_array[0])
             {
 #if UNITY_2021_2_OR_NEWER || NETSTANDARD2_1_OR_GREATER
-                stream.Write(new ReadOnlySpan<byte>(arrayPtr, size));
+                stream.Write(new ReadOnlySpan<byte>(arrayPtr, arraySize));
 #else
                 // `WriteByte` is the fastest way to write binary into stream on small chunks (<8192bytes) based on my benchmark
                 // and BLOB intend to use on small chunks(? or maybe not?)
