@@ -19,7 +19,7 @@ namespace Blob
             return BlobAssetReference<T>.Create(stream.ToArray());
         }
 
-        public static UnityBlobPtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
+        [NotNull] public static UnityBlobPtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobPtr<TValue> field,
             [NotNull] IBuilder<TValue> refBuilder
@@ -32,7 +32,7 @@ namespace Blob
             return ptrBuilder;
         }
 
-        public static UnityBlobPtrBuilderWithNewValue<TValue> SetPointer<T, TValue>(
+        [NotNull] public static UnityBlobPtrBuilderWithNewValue<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobPtr<TValue> field,
             TValue value
@@ -45,7 +45,7 @@ namespace Blob
             return ptrBuilder;
         }
 
-        public static UnityBlobArrayBuilder<TValue> SetArray<T, TValue>(
+        [NotNull] public static UnityBlobArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobArray<TValue> field,
             [NotNull] IEnumerable<TValue> items
@@ -58,7 +58,7 @@ namespace Blob
             return arrayBuilder;
         }
 
-        public static UnityBlobArrayBuilder<TValue> SetArray<T, TValue>(
+        [NotNull] public static UnityBlobArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobArray<TValue> field,
             [NotNull] TValue[] items
@@ -71,7 +71,7 @@ namespace Blob
             return arrayBuilder;
         }
 
-        public static UnityBlobArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
+        [NotNull] public static UnityBlobArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobArray<TValue> field,
             [NotNull] IEnumerable<IBuilder<TValue>> itemBuilders
@@ -84,10 +84,10 @@ namespace Blob
             return arrayBuilder;
         }
 
-        public static UnityBlobStringBuilder SetString<T>(
+        [NotNull] public static UnityBlobStringBuilder SetString<T>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobString field,
-            string value
+            [NotNull] string value
         )
             where T : unmanaged
         {

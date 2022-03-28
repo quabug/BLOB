@@ -8,12 +8,12 @@ namespace Blob
 {
     public static partial class BuilderExtension
     {
-        public static ManagedBlobAssetReference<T> CreateManagedBlobAssetReference<T>(this IBuilder<T> builder) where T : unmanaged
+        [NotNull] public static ManagedBlobAssetReference<T> CreateManagedBlobAssetReference<T>([NotNull] this IBuilder<T> builder) where T : unmanaged
         {
             return new ManagedBlobAssetReference<T>(builder.CreateBlob());
         }
 
-        public static byte[] CreateBlob<T>(this IBuilder<T> builder) where T : unmanaged
+        [NotNull] public static byte[] CreateBlob<T>([NotNull] this IBuilder<T> builder) where T : unmanaged
         {
             using var stream = new MemoryStream();
             builder.CreateBlob(stream);
@@ -21,13 +21,13 @@ namespace Blob
             return stream.ToArray();
         }
 
-        public static Stream CreateBlob<T>(this IBuilder<T> builder, Stream stream) where T : unmanaged
+        [NotNull] public static Stream CreateBlob<T>([NotNull] this IBuilder<T> builder, [NotNull] Stream stream) where T : unmanaged
         {
             builder.Build(stream, 0, 0);
             return stream;
         }
 
-        public static PtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
+        [NotNull] public static PtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobPtr<TValue> field,
             [NotNull] IBuilder<TValue> refBuilder
@@ -40,7 +40,7 @@ namespace Blob
             return ptrBuilder;
         }
 
-        public static PtrBuilderWithNewValue<TValue> SetPointer<T, TValue>(
+        [NotNull] public static PtrBuilderWithNewValue<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobPtr<TValue> field,
             TValue value
@@ -53,7 +53,7 @@ namespace Blob
             return ptrBuilder;
         }
 
-        public static ArrayBuilder<TValue> SetArray<T, TValue>(
+        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] IEnumerable<TValue> items
@@ -66,7 +66,7 @@ namespace Blob
             return arrayBuilder;
         }
 
-        public static ArrayBuilder<TValue> SetArray<T, TValue>(
+        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] TValue[] items
@@ -79,7 +79,7 @@ namespace Blob
             return arrayBuilder;
         }
 
-        public static ArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
+        [NotNull] public static ArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] IEnumerable<IBuilder<TValue>> itemBuilders
@@ -92,7 +92,7 @@ namespace Blob
             return arrayBuilder;
         }
 
-        public static ValueBuilder<TField> SetValue<T, TField>(
+        [NotNull] public static ValueBuilder<TField> SetValue<T, TField>(
             [NotNull] this StructBuilder<T> builder,
             ref TField field,
             TField value
@@ -106,10 +106,10 @@ namespace Blob
             return valueBuilder;
         }
 
-        public static StringBuilder<TEncoding> SetString<T, TEncoding>(
+        [NotNull] public static StringBuilder<TEncoding> SetString<T, TEncoding>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobString<TEncoding> field,
-            string value
+            [NotNull] string value
         )
             where T : unmanaged
             where TEncoding : Encoding, new()

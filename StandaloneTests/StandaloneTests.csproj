@@ -30,6 +30,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Include="..\Assets\Tests\Examples.cs">
+        <Link>Examples.cs</Link>
+      </Compile>
       <Compile Include="..\Assets\Tests\TestBlobBuilder.cs">
         <Link>TestBlobBuilder.cs</Link>
       </Compile>
