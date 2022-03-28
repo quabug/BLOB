@@ -2,6 +2,8 @@
 An alternative way to build BLOB for both [Unity.Entities](https://docs.unity3d.com/Packages/com.unity.entities@0.50/manual/blobs.html) and .NET.
 
 # Usage
+## Builder
+
 <table>
 <tr>
   <td align="center"><strong>BLOB Type</strong></td> <td align="center"><strong>com.quabug.BLOB</strong></td> <td align="center"><strong>Unity.Entities</strong></td>
@@ -268,8 +270,6 @@ Assert.That(blob.Value.IntArray.ToArray(), Is.EqualTo(new [] {1, 2, 3}));
   </sub>
 </td>
 </tr>
-
-Builder comparison between *com.quabug.BLOB* and *Unity.Entities*
 
 </td>
 </tr>
