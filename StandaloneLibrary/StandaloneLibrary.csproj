@@ -6,12 +6,12 @@
         <LangVersion>8</LangVersion>
         <AssemblyName>Blob</AssemblyName>
         <RootNamespace>Blob</RootNamespace>
-        <PackageId>com.quabug.blob</PackageId>
+        <PackageId>BLOB</PackageId>
         <Title>BLOB</Title>
         <Authors>quabug</Authors>
         <Description>BLOB - an alternative way to build BLOB of Unity.Entities</Description>
         <Copyright>quabug</Copyright>
-        <RepositoryUrl>https://github.com/quabug/BlobBuilder</RepositoryUrl>
+        <RepositoryUrl>https://github.com/quabug/BLOB</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
