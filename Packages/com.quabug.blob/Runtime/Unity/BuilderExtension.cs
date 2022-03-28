@@ -13,13 +13,13 @@ namespace Blob
         {
             using var stream = new MemoryStream();
             builder.CreateBlob(stream);
-            var alignedLength = Utilities.Align(stream.Length, 16);
             // expand stream to 16-bytes-aligned length as same as Unity BLOB
+            var alignedLength = Utilities.Align(stream.Length, 16);
             stream.SetLength(alignedLength);
             return BlobAssetReference<T>.Create(stream.ToArray());
         }
 
-        public static UnityBlobRefPtrBuilder<TValue> SetPointer<T, TValue>(
+        public static UnityBlobPtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref Unity.Entities.BlobPtr<TValue> field,
             [NotNull] IBuilder<TValue> refBuilder
@@ -27,9 +27,22 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var refPtrBuilder = new UnityBlobRefPtrBuilder<TValue>(refBuilder);
-            builder.SetBuilder(ref field, refPtrBuilder);
-            return refPtrBuilder;
+            var ptrBuilder = new UnityBlobPtrBuilderWithRefBuilder<TValue>(refBuilder);
+            builder.SetBuilder(ref field, ptrBuilder);
+            return ptrBuilder;
+        }
+
+        public static UnityBlobPtrBuilderWithNewValue<TValue> SetPointer<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref Unity.Entities.BlobPtr<TValue> field,
+            TValue value
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var ptrBuilder = new UnityBlobPtrBuilderWithNewValue<TValue>(value);
+            builder.SetBuilder(ref field, ptrBuilder);
+            return ptrBuilder;
         }
 
         public static UnityBlobArrayBuilder<TValue> SetArray<T, TValue>(
@@ -41,6 +54,32 @@ namespace Blob
             where TValue : unmanaged
         {
             var arrayBuilder = new UnityBlobArrayBuilder<TValue>(items);
+            builder.SetBuilder(ref field, arrayBuilder);
+            return arrayBuilder;
+        }
+
+        public static UnityBlobArrayBuilder<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref Unity.Entities.BlobArray<TValue> field,
+            [NotNull] TValue[] items
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var arrayBuilder = new UnityBlobArrayBuilder<TValue>(items);
+            builder.SetBuilder(ref field, arrayBuilder);
+            return arrayBuilder;
+        }
+
+        public static UnityBlobArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref Unity.Entities.BlobArray<TValue> field,
+            [NotNull] IEnumerable<IBuilder<TValue>> itemBuilders
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var arrayBuilder = new UnityBlobArrayBuilderWithItemBuilders<TValue>(itemBuilders);
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }

@@ -27,7 +27,7 @@ namespace Blob
             return stream;
         }
 
-        public static RefPtrBuilder<TValue> SetPointer<T, TValue>(
+        public static PtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobPtr<TValue> field,
             [NotNull] IBuilder<TValue> refBuilder
@@ -35,12 +35,25 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var refPtrBuilder = new RefPtrBuilder<TValue>(refBuilder);
-            builder.SetBuilder(ref field, refPtrBuilder);
-            return refPtrBuilder;
+            var ptrBuilder = new PtrBuilderWithRefBuilder<TValue>(refBuilder);
+            builder.SetBuilder(ref field, ptrBuilder);
+            return ptrBuilder;
         }
 
-        public static RawArrayBuilder<TValue> SetArray<T, TValue>(
+        public static PtrBuilderWithNewValue<TValue> SetPointer<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobPtr<TValue> field,
+            TValue value
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var ptrBuilder = new PtrBuilderWithNewValue<TValue>(value);
+            builder.SetBuilder(ref field, ptrBuilder);
+            return ptrBuilder;
+        }
+
+        public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] IEnumerable<TValue> items
@@ -48,12 +61,12 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new RawArrayBuilder<TValue>(items.ToArray());
+            var arrayBuilder = new ArrayBuilder<TValue>(items.ToArray());
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }
 
-        public static RawArrayBuilder<TValue> SetArray<T, TValue>(
+        public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
             [NotNull] TValue[] items
@@ -61,7 +74,20 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new RawArrayBuilder<TValue>(items);
+            var arrayBuilder = new ArrayBuilder<TValue>(items);
+            builder.SetBuilder(ref field, arrayBuilder);
+            return arrayBuilder;
+        }
+
+        public static ArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] IEnumerable<IBuilder<TValue>> itemBuilders
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var arrayBuilder = new ArrayBuilderWithItemBuilders<TValue>(itemBuilders);
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }
