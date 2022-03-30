@@ -36,5 +36,12 @@ namespace Blob
             for (var i = 0; i < Length; i++) array[i] = this[i];
             return array;
         }
+
+#if UNITY_2021_2_OR_NEWER || NETSTANDARD2_1_OR_GREATER
+        public Span<T> ToSpan()
+        {
+            return new Span<T>(UnsafePtr, Length);
+        }
+#endif
     }
 }
