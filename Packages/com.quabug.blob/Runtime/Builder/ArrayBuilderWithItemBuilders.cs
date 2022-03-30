@@ -27,7 +27,6 @@ namespace Blob
         {
             var offset = (int)(patchPosition - dataPosition);
             var length = _builders.Length;
-            stream.Seek(dataPosition, SeekOrigin.Begin);
             stream.WriteValue(ref offset);
             stream.WriteValue(ref length);
             var arrayPatchPosition = Utilities.Align<TValue>(patchPosition + sizeof(TValue) * length);

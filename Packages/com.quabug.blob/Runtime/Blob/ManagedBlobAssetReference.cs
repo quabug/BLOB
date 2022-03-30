@@ -6,7 +6,7 @@
         private readonly T* _value;
 
         public ref T Value => ref *_value;
-        public void* UnsafePtr => _value;
+        public T* UnsafePtr => _value;
         public int Length => _blob.Length;
         public byte[] Blob => _blob;
 

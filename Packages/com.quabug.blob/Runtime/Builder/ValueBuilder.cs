@@ -12,7 +12,6 @@ namespace Blob
 
         protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
         {
-            stream.Seek(dataPosition, SeekOrigin.Begin);
             stream.WriteValue(ref _value);
             return patchPosition;
         }

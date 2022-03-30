@@ -43,7 +43,6 @@ namespace Blob
         {
             var offset = (int)(patchPosition - dataPosition);
             var length = _array.Length;
-            stream.Seek(dataPosition, SeekOrigin.Begin);
             stream.WriteValue(ref offset);
             stream.WriteValue(ref length);
             if (length == 0) return patchPosition;

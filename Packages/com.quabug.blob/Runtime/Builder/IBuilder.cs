@@ -26,6 +26,7 @@ namespace Blob
         public virtual long Build(Stream stream, long dataPosition, long patchPosition)
         {
             Position = dataPosition;
+            stream.Seek(dataPosition, SeekOrigin.Begin);
             patchPosition = Utilities.EnsurePatchPosition<T>(patchPosition, dataPosition);
             return BuildImpl(stream, dataPosition, patchPosition);
         }

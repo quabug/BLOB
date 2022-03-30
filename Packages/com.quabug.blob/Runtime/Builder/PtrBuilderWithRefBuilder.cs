@@ -26,7 +26,6 @@ namespace Blob
         protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
         {
             var offset = (int)(_refBuilder.Position - dataPosition);
-            stream.Seek(dataPosition, SeekOrigin.Begin);
             stream.WriteValue(ref offset);
             return patchPosition;
         }
