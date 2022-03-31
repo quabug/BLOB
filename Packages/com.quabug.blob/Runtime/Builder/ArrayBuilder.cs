@@ -22,16 +22,8 @@ namespace Blob
 
         public IBuilder<TValue> this[int index] => _builders[index];
 
-        public ArrayBuilder()
-            : this(Array.Empty<TValue>())
-        {
-        }
-
-        public ArrayBuilder([NotNull] IEnumerable<TValue> items)
-            : this(items.ToArray())
-        {
-        }
-
+        public ArrayBuilder() : this(Array.Empty<TValue>()) {}
+        public ArrayBuilder([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
         public ArrayBuilder([NotNull] TValue[] array)
         {
             _array = array;
@@ -43,9 +35,8 @@ namespace Blob
         {
             var offset = (int)(patchPosition - dataPosition);
             var length = _array.Length;
-            stream.Seek(dataPosition, SeekOrigin.Begin);
-            stream.WriteValue(ref offset);
-            stream.WriteValue(ref length);
+            stream.WriteValue(offset);
+            stream.WriteValue(length);
             if (length == 0) return patchPosition;
 
             stream.Seek(patchPosition, SeekOrigin.Begin);

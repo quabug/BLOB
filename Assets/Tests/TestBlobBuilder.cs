@@ -1,3 +1,7 @@
+#if UNITY_2021_2_OR_NEWER || NETCOREAPP2_1_OR_GREATER
+#define HAS_SPAN
+#endif
+
 using System;
 using System.Linq;
 using System.Text;
@@ -62,7 +66,11 @@ namespace Blob.Tests
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.AreEqual(str, blob.Value.ToString());
             var headerSize = sizeof(UnityBlobString);
-            Assert.That(SubBlob(blob.Blob, headerSize, blob.Value.Length), Is.EquivalentTo(new UTF8Encoding().GetBytes(str)));
+            var strBinary = new UTF8Encoding().GetBytes(str);
+            Assert.That(SubBlob(blob.Blob, headerSize, blob.Value.Length), Is.EquivalentTo(strBinary));
+#if HAS_SPAN
+            Assert.That(blob.Value.ToSpan().ToArray(), Is.EquivalentTo(strBinary));
+#endif
         }
 
         [Test]
@@ -117,6 +125,9 @@ namespace Blob.Tests
         [Test]
         public void should_build_blob_from_complex_blob_structure()
         {
+            const string utf8String = "rfeuivjl, 放大镜考过托福i哦热情";
+            const string unicodeString = "放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl";
+
             var builder = new StructBuilder<ComplexBlob>();
             builder.SetValue(ref builder.Value.Byte, (byte)222);
             var floatArrayBuilder = new ArrayBuilder<float>(new float[] { 1, 2, 3, 4, 5 });
@@ -133,13 +144,13 @@ namespace Blob.Tests
                 .Select(builders => new ArrayBuilderWithItemBuilders<BlobPtr<BlobString>>(builders))
             ;
             builder.SetArray(ref builder.Value.StringArray2Ptr, string2Builder);
-            builder.SetString(ref builder.Value.String, "rfeuivjl, 放大镜考过托福i哦热情");
+            builder.SetString(ref builder.Value.String, utf8String);
             builder.SetPointer(ref builder.Value.StringPtr, builder.GetBuilder(ref builder.Value.String));
             builder.SetPointer(ref builder.Value.StringPtrPtr, builder.GetBuilder(ref builder.Value.StringPtr));
             builder.SetValue(ref builder.Value.Long, 31789457893L);
             builder.SetValue(ref builder.Value.Int, 13278);
             builder.SetPointer(ref builder.Value.IntPtr, builder.GetBuilder(ref builder.Value.Int));
-            builder.SetBuilder(ref builder.Value.UnicodeStringPtr, new PtrBuilderWithNewValue<BlobString<UnicodeEncoding>>(new StringBuilder<UnicodeEncoding>("放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl")));
+            builder.SetBuilder(ref builder.Value.UnicodeStringPtr, new PtrBuilderWithNewValue<BlobString<UnicodeEncoding>>(new StringBuilder<UnicodeEncoding>(unicodeString)));
 
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.AreEqual(13278, blob.Value.IntPtr.Value);
@@ -157,12 +168,24 @@ namespace Blob.Tests
                     index++;
                 }
             }
-            Assert.AreEqual("rfeuivjl, 放大镜考过托福i哦热情", blob.Value.String.ToString());
-            Assert.AreEqual("rfeuivjl, 放大镜考过托福i哦热情", blob.Value.StringPtr.Value.ToString());
-            Assert.AreEqual("rfeuivjl, 放大镜考过托福i哦热情", blob.Value.StringPtrPtr.Value.Value.ToString());
+#if HAS_SPAN
+            index = 0;
+            for (var i = 0; i < blob.Value.StringArray2Ptr.Length; i++)
+            {
+                ref var strings = ref blob.Value.StringArray2Ptr.ToSpan()[i];
+                for (var x = 0; x < strings.Length; x++)
+                {
+                    Assert.AreEqual(string2Flat[index], strings.ToSpan()[x].Value.ToString());
+                    index++;
+                }
+            }
+#endif
+            Assert.AreEqual(utf8String, blob.Value.String.ToString());
+            Assert.AreEqual(utf8String, blob.Value.StringPtr.Value.ToString());
+            Assert.AreEqual(utf8String, blob.Value.StringPtrPtr.Value.Value.ToString());
             Assert.AreEqual(31789457893, blob.Value.Long);
             Assert.AreEqual(13278, blob.Value.Int);
-            Assert.AreEqual("放大镜fdjakfldsauiroew看热舞哦i13278941fdafjdaksl", blob.Value.UnicodeStringPtr.Value.ToString());
+            Assert.AreEqual(unicodeString, blob.Value.UnicodeStringPtr.Value.ToString());
         }
 
         void AssertArrayEqual<T>(T[] array) where T : unmanaged
@@ -172,6 +195,9 @@ namespace Blob.Tests
             Assert.AreEqual(array.Length, blob.Value.Length);
             for (var i = 0; i < array.Length; i++) MemCmp(ref array[i], ref blob.Value[i]);
             Assert.That(array, Is.EquivalentTo(blob.Value.ToArray()));
+#if HAS_SPAN
+            Assert.That(blob.Value.ToSpan().ToArray(), Is.EquivalentTo(blob.Value.ToArray()));
+#endif
         }
 
         unsafe void AssertPtrEqual<T>(T value) where T : unmanaged
@@ -189,6 +215,9 @@ namespace Blob.Tests
             Assert.AreEqual(str, blob.Value.ToString());
             var headerSize = sizeof(BlobString<TEncoding>);
             Assert.That(SubBlob(blob.Blob, headerSize, blob.Value.Length), Is.EquivalentTo(new TEncoding().GetBytes(str)));
+#if HAS_SPAN
+            Assert.That(blob.Value.ToSpan().ToArray(), Is.EquivalentTo(new TEncoding().GetBytes(str)));
+#endif
         }
 
         byte[] SubBlob(byte[] blob, int startIndex, int length)
