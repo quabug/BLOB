@@ -15,6 +15,13 @@ namespace Blob
             }
         }
 
+        public static unsafe void WriteValue<T>([NotNull] this Stream stream, T value) where T : unmanaged
+        {
+            var valuePtr = &value;
+            var size = sizeof(T);
+            WriteValuePtr(stream, (byte*)valuePtr, size);
+        }
+
         public static unsafe void WriteValuePtr([NotNull] this Stream stream, byte* valuePtr, int size)
         {
             // TODO: should handle endianness?
