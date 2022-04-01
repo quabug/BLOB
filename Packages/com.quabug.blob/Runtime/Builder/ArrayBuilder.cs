@@ -10,7 +10,6 @@ namespace Blob
         where TArray : unmanaged
     {
         private readonly TValue[] _array;
-        private readonly ValuePositionBuilder[] _builders;
         private readonly int _alignment;
 
         static ArrayBuilder()
@@ -20,23 +19,17 @@ namespace Blob
                 throw new ArgumentException($"{nameof(TArray)} must has and only has an int `Offset` field and an int `Length` field");
         }
 
-        public IBuilder<TValue> this[int index] => _builders[index];
-
-        public ArrayBuilder(int alignment = 0) : this(Array.Empty<TValue>(), alignment) {}
+        public ArrayBuilder() : this(Array.Empty<TValue>()) {}
         public ArrayBuilder([NotNull] IEnumerable<TValue> items, int alignment = 0) : this(items.ToArray(), alignment) {}
         public ArrayBuilder([NotNull] TValue[] array, int alignment = 0)
         {
             _array = array;
-            _builders = new ValuePositionBuilder[array.Length];
-            for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder();
             _alignment = alignment <= 0 ? Utilities.AlignOf<TValue>() : alignment;
             if (!Utilities.IsPowerOfTwo(_alignment)) throw new ArgumentException($"{nameof(alignment)} must be power of 2");
         }
 
         protected override void BuildImpl(IBlobStream stream)
         {
-            var patchPosition = stream.PatchPosition;
-            var valueSize = sizeof(TValue);
             stream.EnsureDataSize<TArray>()
                 .WritePatchOffset()
                 .WriteValue(_array.Length)
@@ -44,13 +37,6 @@ namespace Blob
                 .WriteArray(_array)
                 .AlignPatch(_alignment)
             ;
-            for (var i = 0; i < _builders.Length; i++) _builders[i].Position = patchPosition + valueSize * i;
-        }
-
-        public class ValuePositionBuilder : IBuilder<TValue>
-        {
-            public void Build(IBlobStream stream) {}
-            public int Position { get; internal set; }
         }
     }
 
