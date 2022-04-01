@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Blob
+﻿namespace Blob
 {
     public class ValueBuilder<T> : Builder<T> where T : unmanaged
     {
@@ -10,10 +8,9 @@ namespace Blob
         public ValueBuilder() => _value = default(T);
         public ValueBuilder(T value) => _value = value;
 
-        protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
+        protected override void BuildImpl(IBlobStream stream)
         {
             stream.WriteValue(ref _value);
-            return patchPosition;
         }
     }
 }

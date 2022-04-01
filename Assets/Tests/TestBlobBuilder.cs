@@ -130,7 +130,7 @@ namespace Blob.Tests
 
             var builder = new StructBuilder<ComplexBlob>();
             builder.SetValue(ref builder.Value.Byte, (byte)222);
-            var floatArrayBuilder = new ArrayBuilder<float>(new float[] { 1, 2, 3, 4, 5 });
+            var floatArrayBuilder = new ArrayBuilderWithItemPosition<float>(new float[] { 1, 2, 3, 4, 5 });
             builder.SetBuilder(ref builder.Value.FloatArray, floatArrayBuilder);
             builder.SetPointer(ref builder.Value.FloatPtr, floatArrayBuilder[2]);
             var string2 = new[]

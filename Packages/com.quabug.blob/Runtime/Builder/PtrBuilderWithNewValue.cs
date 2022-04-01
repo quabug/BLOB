@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -22,11 +21,9 @@ namespace Blob
         public PtrBuilderWithNewValue(TValue value) => _builder = new ValueBuilder<TValue>(value);
         public PtrBuilderWithNewValue([NotNull] IBuilder<TValue> builder) => _builder = builder;
 
-        protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
+        protected override void BuildImpl(IBlobStream stream)
         {
-            var offset = (int)(patchPosition - dataPosition);
-            stream.WriteValue(offset);
-            return _builder.Build(stream, patchPosition, patchPosition);
+            stream.EnsureDataSize<TPtr>().WritePatchOffset().ToPatchPosition().WriteValue(_builder);
         }
     }
 

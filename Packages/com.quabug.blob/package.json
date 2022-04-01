@@ -1,7 +1,7 @@
 {
   "name": "com.quabug.blob",
   "description": "BLOB - an alternative way to build BLOB of Unity.Entities",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "unity": "2020.3",
   "displayName": "BLOB",
   "type": "library"

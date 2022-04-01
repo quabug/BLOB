@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -39,14 +36,15 @@ namespace Blob
             }
         }
 
-        protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
+        protected override void BuildImpl(IBlobStream stream)
         {
+            stream.EnsureDataSize<T>();
             foreach (var (offset, builder) in _builders)
             {
+                stream.DataPosition = Position + offset;
                 // TODO: restrict on writing-size of field value?
-                patchPosition = builder.Build(stream, dataPosition + offset, patchPosition);
+                builder.Build(stream);
             }
-            return patchPosition;
         }
     }
 }

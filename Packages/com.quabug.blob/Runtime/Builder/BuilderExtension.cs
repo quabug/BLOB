@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -15,16 +14,10 @@ namespace Blob
 
         [NotNull] public static byte[] CreateBlob<T>([NotNull] this IBuilder<T> builder) where T : unmanaged
         {
-            using var stream = new MemoryStream();
-            builder.CreateBlob(stream);
-            stream.SetLength(Utilities.Align<T>(stream.Length));
+            using var stream = new BlobMemoryStream();
+            builder.Build(stream);
+            stream.Length = (int)Utilities.Align<T>(stream.Length);
             return stream.ToArray();
-        }
-
-        [NotNull] public static Stream CreateBlob<T>([NotNull] this IBuilder<T> builder, [NotNull] Stream stream) where T : unmanaged
-        {
-            builder.Build(stream, 0, 0);
-            return stream;
         }
 
         [NotNull] public static PtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(

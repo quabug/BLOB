@@ -1,7 +1,6 @@
 ﻿#if UNITY_BLOB
 
 using System.Collections.Generic;
-using System.IO;
 using JetBrains.Annotations;
 using Unity.Entities;
 
@@ -11,11 +10,10 @@ namespace Blob
     {
         public static BlobAssetReference<T> CreateUnityBlobAssetReference<T>([NotNull] this IBuilder<T> builder) where T : unmanaged
         {
-            using var stream = new MemoryStream();
-            builder.CreateBlob(stream);
+            using var stream = new BlobMemoryStream();
+            builder.Build(stream);
             // expand stream to 16-bytes-aligned length as same as Unity BLOB
-            var alignedLength = Utilities.Align(stream.Length, 16);
-            stream.SetLength(alignedLength);
+            stream.Length = (int)Utilities.Align(stream.Length, 16);
             return BlobAssetReference<T>.Create(stream.ToArray());
         }
 
