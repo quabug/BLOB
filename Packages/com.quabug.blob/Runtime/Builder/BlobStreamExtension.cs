@@ -76,7 +76,7 @@ namespace Blob
             return stream.WriteArray(itemBuilders, sizeof(T), Utilities.AlignOf<T>());
         }
 
-        public static unsafe IBlobStream WriteArray(
+        public static IBlobStream WriteArray(
             [NotNull] this IBlobStream stream,
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder> itemBuilders,
             int itemSize,

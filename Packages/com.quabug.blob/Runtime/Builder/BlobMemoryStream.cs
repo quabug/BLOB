@@ -7,10 +7,8 @@ namespace Blob
     {
         private readonly MemoryStream _stream;
 
-        public BlobMemoryStream(int capacity = 1024 * 8)
-        {
-            _stream = new MemoryStream(capacity);
-        }
+        public BlobMemoryStream() : this (1024 * 4) {}
+        public BlobMemoryStream(int capacity) => _stream = new MemoryStream(capacity);
 
         public int PatchPosition { get; set; }
 
