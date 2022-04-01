@@ -13,15 +13,15 @@ namespace Blob
             return stream;
         }
 
-        public static IBlobStream ReservePatch([NotNull] this IBlobStream stream, int size, int alignment)
-        {
-            stream.PatchPosition = (int)Utilities.Align(stream.PatchPosition + size, alignment);
-            return stream;
-        }
-
         public static unsafe IBlobStream EnsureDataSize<T>([NotNull] this IBlobStream stream) where T : unmanaged
         {
             return stream.EnsureDataSize(sizeof(T), Utilities.AlignOf<T>());
+        }
+
+        public static IBlobStream ExpandPatch([NotNull] this IBlobStream stream, int size, int alignment)
+        {
+            stream.PatchPosition = (int)Utilities.Align(stream.PatchPosition + size, alignment);
+            return stream;
         }
 
         public static IBlobStream AlignPatch([NotNull] this IBlobStream stream, int alignment)
@@ -53,7 +53,7 @@ namespace Blob
             return stream;
         }
 
-        public static IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, IBuilder<T> builder) where T : unmanaged
+        public static IBlobStream WriteValue([NotNull] this IBlobStream stream, IBuilder builder)
         {
             builder.Build(stream);
             return stream;
@@ -73,11 +73,21 @@ namespace Blob
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder<T>> itemBuilders
         ) where T : unmanaged
         {
+            return stream.WriteArray(itemBuilders, sizeof(T), Utilities.AlignOf<T>());
+        }
+
+        public static unsafe IBlobStream WriteArray(
+            [NotNull] this IBlobStream stream,
+            [NotNull, ItemNotNull] IReadOnlyList<IBuilder> itemBuilders,
+            int itemSize,
+            int alignment
+        )
+        {
             var patchPosition = stream.PatchPosition;
-            stream.ReservePatch(sizeof(T) * itemBuilders.Count, Utilities.AlignOf<T>());
+            stream.ExpandPatch(itemSize * itemBuilders.Count, alignment);
             for (var i = 0; i < itemBuilders.Count; i++)
             {
-                stream.DataPosition = patchPosition + sizeof(T) * i;
+                stream.DataPosition = patchPosition + itemSize * i;
                 itemBuilders[i].Build(stream);
             }
             return stream;

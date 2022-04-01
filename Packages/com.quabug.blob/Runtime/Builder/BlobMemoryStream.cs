@@ -5,7 +5,12 @@ namespace Blob
 {
     public class BlobMemoryStream : IBlobStream, IDisposable
     {
-        private readonly MemoryStream _stream = new MemoryStream(1024 * 8);
+        private readonly MemoryStream _stream;
+
+        public BlobMemoryStream(int capacity = 1024 * 8)
+        {
+            _stream = new MemoryStream(capacity);
+        }
 
         public int PatchPosition { get; set; }
 

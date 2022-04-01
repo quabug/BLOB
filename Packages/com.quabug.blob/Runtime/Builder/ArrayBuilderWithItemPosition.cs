@@ -14,8 +14,10 @@ namespace Blob
         public IBuilder<TValue> this[int index] => _builders[index];
 
         public ArrayBuilderWithItemPosition() : this(Array.Empty<TValue>()) {}
-        public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items, int alignment = 0) : this(items.ToArray(), alignment) {}
-        public ArrayBuilderWithItemPosition([NotNull] TValue[] array, int alignment = 0) : base(array, alignment)
+        public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
+        public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items, int alignment) : this(items.ToArray(), alignment) {}
+        public ArrayBuilderWithItemPosition([NotNull] TValue[] array) : this(array, Utilities.AlignOf<TValue>()) {}
+        public ArrayBuilderWithItemPosition([NotNull] TValue[] array, int alignment) : base(array, alignment)
         {
             _builders = new ValuePositionBuilder[array.Length];
             for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder();
@@ -31,7 +33,12 @@ namespace Blob
 
         public class ValuePositionBuilder : IBuilder<TValue>
         {
-            public void Build(IBlobStream stream) {}
+            public void Build(IBlobStream stream)
+            {
+                // this builder is only made for record Position
+                // so no build process here
+            }
+
             public int Position { get; internal set; }
         }
     }

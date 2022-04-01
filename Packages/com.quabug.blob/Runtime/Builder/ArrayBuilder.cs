@@ -20,11 +20,13 @@ namespace Blob
         }
 
         public ArrayBuilder() : this(Array.Empty<TValue>()) {}
-        public ArrayBuilder([NotNull] IEnumerable<TValue> items, int alignment = 0) : this(items.ToArray(), alignment) {}
-        public ArrayBuilder([NotNull] TValue[] array, int alignment = 0)
+        public ArrayBuilder([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
+        public ArrayBuilder([NotNull] IEnumerable<TValue> items, int alignment) : this(items.ToArray(), alignment) {}
+        public ArrayBuilder([NotNull] TValue[] array) : this(array, Utilities.AlignOf<TValue>()) {}
+        public ArrayBuilder([NotNull] TValue[] array, int alignment)
         {
             _array = array;
-            _alignment = alignment <= 0 ? Utilities.AlignOf<TValue>() : alignment;
+            _alignment = alignment;
             if (!Utilities.IsPowerOfTwo(_alignment)) throw new ArgumentException($"{nameof(alignment)} must be power of 2");
         }
 
