@@ -23,20 +23,13 @@ namespace Blob
 
         public IBuilder<TValue> this[int index] => _builders[index];
 
-        protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
+        protected override void BuildImpl(IBlobStream stream)
         {
-            var offset = (int)(patchPosition - dataPosition);
-            var length = _builders.Length;
-            stream.WriteValue(offset);
-            stream.WriteValue(length);
-            var arrayPatchPosition = Utilities.Align<TValue>(patchPosition + sizeof(TValue) * length);
-            for (var i = 0; i < length; i++)
-            {
-                var arrayDataPosition = patchPosition + sizeof(TValue) * i;
-                arrayPatchPosition = _builders[i].Build(stream, arrayDataPosition, arrayPatchPosition);
-            }
-
-            return arrayPatchPosition;
+            stream.EnsureDataSize<TArray>()
+                .WritePatchOffset()
+                .WriteValue(_builders.Length)
+                .WriteArray(_builders)
+            ;
         }
     }
 

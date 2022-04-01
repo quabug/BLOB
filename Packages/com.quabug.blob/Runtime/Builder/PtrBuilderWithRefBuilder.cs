@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -23,11 +22,9 @@ namespace Blob
             _refBuilder = refBuilder;
         }
 
-        protected override long BuildImpl(Stream stream, long dataPosition, long patchPosition)
+        protected override void BuildImpl(IBlobStream stream)
         {
-            var offset = (int)(_refBuilder.Position - dataPosition);
-            stream.WriteValue(offset);
-            return patchPosition;
+            stream.EnsureDataSize<TPtr>().WriteOffset(_refBuilder.Position);
         }
     }
 
