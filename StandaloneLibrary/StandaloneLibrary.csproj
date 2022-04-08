@@ -15,7 +15,7 @@
         <RepositoryType>git</RepositoryType>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Version>1.2.0</Version>
+        <Version>1.2.1</Version>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
