@@ -26,6 +26,8 @@ namespace Blob
 
         public byte[] ToArray() => _stream.ToArray();
 
+        public byte[] Buffer => _stream.GetBuffer();
+
         public unsafe void Write(byte* valuePtr, int size, int alignment)
         {
             PatchPosition = Math.Max(PatchPosition, (int)Utilities.Align(DataPosition + size, alignment));
