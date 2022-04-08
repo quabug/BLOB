@@ -1,4 +1,4 @@
-[![NuGet Badge](https://buildstats.info/nuget/BLOB)](https://www.nuget.org/packages/BLOB/)
+[![NuGet Badge](https://img.shields.io/nuget/v/BLOB.svg?style=flat)](https://www.nuget.org/packages/BLOB/)
 [![openupm](https://img.shields.io/npm/v/com.quabug.blob?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.quabug.blob/)
 
 # BLOB
