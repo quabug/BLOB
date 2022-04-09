@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace Blob.Tests
+namespace Blob
 {
     public struct BlobTree<T> where T : unmanaged
     {
-        public BlobArray<int> EndIndices;
-        public BlobArray<T> Nodes;
+        internal BlobArray<int> EndIndices;
+        internal BlobArray<T> Nodes;
 
         public Node this[int index] => new Node(ref this, index);
         public int Length => Nodes.Length;
+
+        public ref T GetValue(int index) => ref Nodes[index];
+        public int GetEndIndex(int index) => EndIndices[index];
 
         public readonly unsafe ref struct Node
         {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Blob.Tests
+namespace Blob
 {
     public interface ITreeNode<out T>
     {

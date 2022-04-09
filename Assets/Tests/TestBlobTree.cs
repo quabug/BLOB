@@ -95,8 +95,6 @@ namespace Blob.Tests
             var builder = new TreeBuilder<int>();
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.That(blob.Value.Length, Is.EqualTo(0));
-            Assert.That(blob.Value.Nodes.Length, Is.EqualTo(0));
-            Assert.That(blob.Value.EndIndices.Length, Is.EqualTo(0));
         }
 
         [Test]
