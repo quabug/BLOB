@@ -54,9 +54,19 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilder<TValue>(items.ToArray());
-            builder.SetBuilder(ref field, arrayBuilder);
-            return arrayBuilder;
+            return builder.SetArray(ref field, items, Utilities.AlignOf<TValue>());
+        }
+
+        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] IEnumerable<TValue> items,
+            int alignment
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            return builder.SetArray(ref field, items.ToArray(), alignment);
         }
 
         [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
@@ -67,7 +77,19 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilder<TValue>(items);
+            return builder.SetArray(ref field, items, Utilities.AlignOf<TValue>());
+        }
+
+        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] TValue[] items,
+            int alignment
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var arrayBuilder = new ArrayBuilder<TValue>(items, alignment);
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }

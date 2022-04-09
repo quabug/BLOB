@@ -45,5 +45,6 @@ namespace Blob
     public class ArrayBuilder<TValue> : ArrayBuilder<TValue, BlobArray<TValue>> where TValue : unmanaged
     {
         public ArrayBuilder([NotNull] TValue[] array) : base(array) {}
+        public ArrayBuilder([NotNull] TValue[] array, int alignment) : base(array, alignment) {}
     }
 }
