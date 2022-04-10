@@ -28,6 +28,7 @@ namespace Blob
                 .WritePatchOffset()
                 .WriteValue(_builders.Length)
                 .WriteArray(_builders)
+                .AlignPatch(4) // HACK: at least align by 4? or simply assign from argument?
             ;
         }
     }

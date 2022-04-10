@@ -20,6 +20,7 @@ namespace Blob
             return stream.ToArray();
         }
 
+#region SetPointer of StructBuilder
         [NotNull] public static PtrBuilderWithRefBuilder<TValue> SetPointer<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobPtr<TValue> field,
@@ -45,7 +46,9 @@ namespace Blob
             builder.SetBuilder(ref field, ptrBuilder);
             return ptrBuilder;
         }
+#endregion
 
+#region SetArray of StructBuilder
         [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
@@ -54,9 +57,19 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilder<TValue>(items.ToArray());
-            builder.SetBuilder(ref field, arrayBuilder);
-            return arrayBuilder;
+            return builder.SetArray(ref field, items, Utilities.AlignOf<TValue>());
+        }
+
+        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] IEnumerable<TValue> items,
+            int alignment
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            return builder.SetArray(ref field, items.ToArray(), alignment);
         }
 
         [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
@@ -67,7 +80,19 @@ namespace Blob
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilder<TValue>(items);
+            return builder.SetArray(ref field, items, Utilities.AlignOf<TValue>());
+        }
+
+        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobArray<TValue> field,
+            [NotNull] TValue[] items,
+            int alignment
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var arrayBuilder = new ArrayBuilder<TValue>(items, alignment);
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }
@@ -84,7 +109,9 @@ namespace Blob
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }
+#endregion
 
+#region SetValue of StructBuilder
         [NotNull] public static ValueBuilder<TField> SetValue<T, TField>(
             [NotNull] this StructBuilder<T> builder,
             ref TField field,
@@ -98,7 +125,9 @@ namespace Blob
             field = value;
             return valueBuilder;
         }
+#endregion
 
+#region SetString of StructBuilder
         [NotNull] public static StringBuilder<TEncoding> SetString<T, TEncoding>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobString<TEncoding> field,
@@ -111,5 +140,46 @@ namespace Blob
             builder.SetBuilder(ref field, stringBuilder);
             return stringBuilder;
         }
+#endregion
+
+#region SetTree of StructBuilder
+        [NotNull] public static TreeBuilder<TValue> SetTree<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobTree<TValue> field,
+            [NotNull] ITreeNode<TValue> root
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            return builder.SetTree(ref field, root, Utilities.AlignOf<TValue>());
+        }
+
+        [NotNull] public static TreeBuilder<TValue> SetTree<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobTree<TValue> field,
+            [NotNull] ITreeNode<TValue> root,
+            int alignment
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var treeBuilder = new TreeBuilder<TValue>(root, alignment);
+            builder.SetBuilder(ref field, treeBuilder);
+            return treeBuilder;
+        }
+
+        [NotNull] public static TreeBuilder<TValue> SetTree<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobTree<TValue> field,
+            [NotNull] ITreeNode<IBuilder<TValue>> root
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var treeBuilder = new TreeBuilder<TValue>(root);
+            builder.SetBuilder(ref field, treeBuilder);
+            return treeBuilder;
+        }
+#endregion
     }
 }

@@ -10,6 +10,8 @@ namespace Blob
         {
             var expectedPatchPosition = (int)Utilities.Align(stream.DataPosition + size, alignment);
             stream.PatchPosition = Math.Max(stream.PatchPosition, expectedPatchPosition);
+            // expand stream buffer by patch position
+            if (stream.Length < stream.PatchPosition) stream.Length = stream.PatchPosition;
             return stream;
         }
 

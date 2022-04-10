@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
         <IsPackable>false</IsPackable>
         <AssemblyName>Blob.Tests</AssemblyName>
         <RootNamespace>Blob.Tests</RootNamespace>
@@ -35,6 +35,9 @@
       </Compile>
       <Compile Include="..\Assets\Tests\TestBlobBuilder.cs">
         <Link>TestBlobBuilder.cs</Link>
+      </Compile>
+      <Compile Include="..\Assets\Tests\TestBlobTree.cs">
+        <Link>TestBlobTree.cs</Link>
       </Compile>
       <Compile Include="..\Assets\Tests\TestUtilities.cs">
         <Link>TestUtilities.cs</Link>
