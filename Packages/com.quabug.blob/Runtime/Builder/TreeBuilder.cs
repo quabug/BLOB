@@ -24,15 +24,31 @@ namespace Blob
 
         public TreeBuilder([NotNull] ITreeNode<T> root, int alignment)
         {
-            var endIndices = new List<int>();
-            var values = new List<T>();
-
-            FlattenAndReturnEndIndex(root, 0);
-
+            var (endIndices, values) = Flatten(root);
             _builder.SetArray(ref _builder.Value.EndIndices, endIndices);
             _builder.SetArray(ref _builder.Value.Nodes, values, alignment);
+        }
 
-            int /*endIndex*/ FlattenAndReturnEndIndex(ITreeNode<T> node, int index)
+        public TreeBuilder([NotNull] ITreeNode<IBuilder<T>> root)
+        {
+            var (endIndices, values) = Flatten(root);
+            _builder.SetArray(ref _builder.Value.EndIndices, endIndices);
+            _builder.SetArray(ref _builder.Value.Nodes, values);
+        }
+
+        protected override void BuildImpl(IBlobStream stream)
+        {
+            _builder.Build(stream);
+        }
+
+        private (List<int> endIndices, List<U> nodeValues) Flatten<U>(ITreeNode<U> root)
+        {
+            var endIndices = new List<int>();
+            var values = new List<U>();
+            FlattenAndReturnEndIndex(root, 0);
+            return (endIndices, values);
+
+            int /*endIndex*/ FlattenAndReturnEndIndex(ITreeNode<U> node, int index)
             {
                 var valueIndex = values.Count;
                 values.Add(node.Value);
@@ -42,11 +58,6 @@ namespace Blob
                 endIndices[valueIndex] = endIndex;
                 return endIndex;
             }
-        }
-
-        protected override void BuildImpl(IBlobStream stream)
-        {
-            _builder.Build(stream);
         }
     }
 }
