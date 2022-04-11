@@ -63,9 +63,7 @@ namespace Blob
 
         public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array, int alignment) where T : unmanaged
         {
-            stream.WriteArrayMeta(array.Length);
-            var dataPosition = stream.DataPosition;
-            return stream.ToPatchPosition().WriteArrayData(array, alignment).ToPosition(dataPosition);
+            return stream.WriteArrayMeta(array.Length).ToPatchPosition().WriteArrayData(array, alignment);
         }
 
         public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array) where T : unmanaged
@@ -88,9 +86,7 @@ namespace Blob
             int alignment
         )
         {
-            stream.WriteArrayMeta(itemBuilders.Count);
-            var dataPosition = stream.DataPosition;
-            return stream.ToPatchPosition().WriteArrayData(itemBuilders, itemSize, alignment).ToPosition(dataPosition);
+            return stream.WriteArrayMeta(itemBuilders.Count).ToPatchPosition().WriteArrayData(itemBuilders, itemSize, alignment);
         }
 
         public static IBlobStream WriteArrayMeta([NotNull] this IBlobStream stream, int length)
