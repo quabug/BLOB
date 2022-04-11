@@ -28,23 +28,11 @@
     <ItemGroup>
       <ProjectReference Include="..\StandaloneLibrary\StandaloneLibrary.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Compile Include="..\Assets\Tests\Examples.cs">
-        <Link>Examples.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestBlobAny.cs">
-        <Link>TestBlobAny.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestBlobBuilder.cs">
-        <Link>TestBlobBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestBlobTree.cs">
-        <Link>TestBlobTree.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestUtilities.cs">
-        <Link>TestUtilities.cs</Link>
-      </Compile>
+        <Compile Include="..\Assets\Tests\*.cs">
+            <Link>Blob\%(FileName)%(Extension)</Link>
+        </Compile>
     </ItemGroup>
 
 </Project>
