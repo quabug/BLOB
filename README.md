@@ -2,7 +2,7 @@
 [![openupm](https://img.shields.io/npm/v/com.quabug.blob?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.quabug.blob/)
 
 # BLOB
-A standalone way to build BLOB for both [Unity.Entities](https://docs.unity3d.com/Packages/com.unity.entities@0.50/manual/blobs.html) and .NET.
+Standalone to build BLOB for both [Unity.Entities](https://docs.unity3d.com/Packages/com.unity.entities@0.50/manual/blobs.html) and .NET.
 
 ## Usage
 ### Builder
