@@ -61,13 +61,16 @@ namespace Blob
             return stream;
         }
 
-        public static unsafe IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array) where T : unmanaged
+        public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array, int alignment) where T : unmanaged
         {
-            if (array.Length == 0) return stream;
-            var valueSize = sizeof(T);
-            var arraySize = valueSize * array.Length;
-            fixed (void* arrayPtr = &array[0]) stream.Write((byte*) arrayPtr, arraySize, Utilities.AlignOf<T>());
-            return stream;
+            stream.WriteArrayMeta(array.Length);
+            var dataPosition = stream.DataPosition;
+            return stream.ToPatchPosition().WriteArrayData(array, alignment).ToPosition(dataPosition);
+        }
+
+        public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array) where T : unmanaged
+        {
+            return stream.WriteArray(array, Utilities.AlignOf<T>());
         }
 
         public static unsafe IBlobStream WriteArray<T>(
@@ -79,6 +82,50 @@ namespace Blob
         }
 
         public static IBlobStream WriteArray(
+            [NotNull] this IBlobStream stream,
+            [NotNull, ItemNotNull] IReadOnlyList<IBuilder> itemBuilders,
+            int itemSize,
+            int alignment
+        )
+        {
+            stream.WriteArrayMeta(itemBuilders.Count);
+            var dataPosition = stream.DataPosition;
+            return stream.ToPatchPosition().WriteArrayData(itemBuilders, itemSize, alignment).ToPosition(dataPosition);
+        }
+
+        public static IBlobStream WriteArrayMeta([NotNull] this IBlobStream stream, int length)
+        {
+            return stream.WritePatchOffset().WriteValue(length);
+        }
+
+        public static IBlobStream WriteArrayMeta([NotNull] this IBlobStream stream, int length, int patchOffset)
+        {
+            return stream.WriteValue(patchOffset).WriteValue(length);
+        }
+
+        public static IBlobStream WriteArrayData<T>([NotNull] this IBlobStream stream, T[] array) where T : unmanaged
+        {
+            return stream.WriteArrayData(array, Utilities.AlignOf<T>());
+        }
+
+        public static unsafe IBlobStream WriteArrayData<T>([NotNull] this IBlobStream stream, T[] array, int alignment) where T : unmanaged
+        {
+            if (array.Length == 0) return stream;
+            var valueSize = sizeof(T);
+            var arraySize = valueSize * array.Length;
+            fixed (void* arrayPtr = &array[0]) stream.Write((byte*) arrayPtr, arraySize, alignment);
+            return stream;
+        }
+
+        public static unsafe IBlobStream WriteArrayData<T>(
+            [NotNull] this IBlobStream stream,
+            [NotNull, ItemNotNull] IReadOnlyList<IBuilder<T>> itemBuilders
+        ) where T : unmanaged
+        {
+            return stream.WriteArrayData(itemBuilders, sizeof(T), Utilities.AlignOf<T>());
+        }
+
+        public static IBlobStream WriteArrayData(
             [NotNull] this IBlobStream stream,
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder> itemBuilders,
             int itemSize,

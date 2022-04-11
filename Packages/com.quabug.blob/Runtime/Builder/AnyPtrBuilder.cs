@@ -12,8 +12,7 @@ namespace Blob
         protected override unsafe void BuildImpl(IBlobStream stream)
         {
             stream.EnsureDataSize<BlobAnyPtr>()
-                .WritePatchOffset()
-                .WriteValue(sizeof(T))
+                .WriteArrayMeta(sizeof(T))
                 .ToPatchPosition()
                 .WriteValue(Value)
                 .AlignPatch(Utilities.AlignOf<T>())
@@ -44,7 +43,7 @@ namespace Blob
                 .WritePatchOffset()
                 .WriteValue(_bytes.Length)
                 .ToPatchPosition()
-                .WriteArray(_bytes)
+                .WriteArrayData(_bytes)
                 .AlignPatch(_alignment)
             ;
         }
