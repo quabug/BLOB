@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Blob.Tests
+namespace Blob
 {
     public class AnyArrayBuilder : Builder<BlobAnyArray>
     {
@@ -32,7 +32,7 @@ namespace Blob.Tests
             _builderList.Add(builder);
         }
 
-        public void Add<T>([NotNull] IBuilder<T> itemBuilder) where T : unmanaged
+        public void Add([NotNull] IBuilder itemBuilder)
         {
             _builderList.Add(itemBuilder);
         }

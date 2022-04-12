@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Blob.Tests
+namespace Blob
 {
     public unsafe struct BlobAnyArray
     {
@@ -22,7 +22,12 @@ namespace Blob.Tests
         public T* GetUnsafeValuePtr<T>(int index) where T : unmanaged
         {
             if (GetSize(index) < sizeof(T)) throw new ArgumentException("invalid generic parameter");
-            return (T*)(Data.UnsafePtr + Offsets[index]);
+            return (T*)GetUnsafeValuePtr(index);
+        }
+
+        public void* GetUnsafeValuePtr(int index)
+        {
+            return Data.UnsafePtr + Offsets[index];
         }
 
         public int GetSize(int index)

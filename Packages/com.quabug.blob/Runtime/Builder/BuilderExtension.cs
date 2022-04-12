@@ -12,12 +12,24 @@ namespace Blob
             return new ManagedBlobAssetReference<T>(builder.CreateBlob());
         }
 
-        [NotNull] public static ManagedBlobAssetReference CreateManagedBlobAssetReference([NotNull] this IBuilder builder, int alignment = 1)
+        [NotNull]
+        public static ManagedBlobAssetReference CreateManagedBlobAssetReference([NotNull] this IBuilder builder)
+        {
+            return builder.CreateManagedBlobAssetReference(1);
+        }
+
+        [NotNull] public static ManagedBlobAssetReference CreateManagedBlobAssetReference([NotNull] this IBuilder builder, int alignment)
         {
             return new ManagedBlobAssetReference(builder.CreateBlob(alignment));
         }
 
-        [NotNull] public static byte[] CreateBlob([NotNull] this IBuilder builder, int alignment = 1)
+        [NotNull]
+        public static byte[] CreateBlob([NotNull] this IBuilder builder)
+        {
+            return builder.CreateBlob(1);
+        }
+
+        [NotNull] public static byte[] CreateBlob([NotNull] this IBuilder builder, int alignment)
         {
             using var stream = new BlobMemoryStream();
             builder.Build(stream);
