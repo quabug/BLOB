@@ -9,7 +9,7 @@ namespace Blob
         IReadOnlyList<ITreeNode> Children { get; }
     }
 
-    public class AnyTreeBuilder : Builder<BlobAnyTree>
+    public class AnyTreeBuilder : Builder<BlobTreeAny>
     {
         public ITreeNode Root { get; set; }
 
@@ -27,7 +27,7 @@ namespace Blob
             var dataBuilder = new AnyArrayBuilder();
             foreach (var valueBuilder in valueBuilders) dataBuilder.Add(valueBuilder);
 
-            var builder = new StructBuilder<BlobAnyTree>();
+            var builder = new StructBuilder<BlobTreeAny>();
             builder.SetArray(ref builder.Value.EndIndices, endIndices);
             builder.SetBuilder(ref builder.Value.Data, dataBuilder);
             builder.Build(stream);

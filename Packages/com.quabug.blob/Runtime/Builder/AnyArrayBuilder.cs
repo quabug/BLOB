@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public class AnyArrayBuilder : Builder<BlobAnyArray>
+    public class AnyArrayBuilder : Builder<BlobArrayAny>
     {
         private readonly List<IBuilder> _builderList = new List<IBuilder>();
         private readonly int _alignment = 0;
@@ -51,7 +51,7 @@ namespace Blob
         {
             // write meta of Offsets:BlobArray<int>
             var offsetLength = _builderList.Count + 1;
-            stream.EnsureDataSize<BlobAnyArray>().WriteArrayMeta(offsetLength);
+            stream.EnsureDataSize<BlobArrayAny>().WriteArrayMeta(offsetLength);
 
             var dataArrayPosition = stream.DataPosition;
             var offsetPatchPosition = stream.PatchPosition;

@@ -3,20 +3,20 @@ using System.Collections.Generic;
 
 namespace Blob
 {
-    public struct BlobAnyTree
+    public struct BlobTreeAny
     {
         internal BlobArray<int> EndIndices;
-        internal BlobAnyArray Data;
+        internal BlobArrayAny Data;
 
         public Node this[int index] => new Node(ref this, index);
         public int Length => EndIndices.Length;
 
         public readonly unsafe ref struct Node
         {
-            private readonly BlobAnyTree* _treePtr;
+            private readonly BlobTreeAny* _treePtr;
             private readonly int _index;
 
-            public ref BlobAnyTree Tree => ref *_treePtr;
+            public ref BlobTreeAny Tree => ref *_treePtr;
             public int Size => Tree.Data.GetSize(_index);
             public void* UnsafePtr => Tree.Data.GetUnsafeValuePtr(_index);
 
@@ -31,9 +31,9 @@ namespace Blob
             public int EndIndex => Tree.EndIndices[_index];
             public int Offset => Tree.Data.GetOffset(_index);
 
-            internal Node(ref BlobAnyTree tree, int index)
+            internal Node(ref BlobTreeAny tree, int index)
             {
-                fixed (BlobAnyTree* ptr = &tree) _treePtr = ptr;
+                fixed (BlobTreeAny* ptr = &tree) _treePtr = ptr;
                 _index = index;
             }
 

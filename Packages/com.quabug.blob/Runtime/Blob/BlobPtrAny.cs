@@ -2,7 +2,7 @@
 
 namespace Blob
 {
-    public unsafe struct BlobAnyPtr
+    public unsafe struct BlobPtrAny
     {
         internal BlobArray<byte> Data;
 

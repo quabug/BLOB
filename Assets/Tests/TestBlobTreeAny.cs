@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Blob.Tests
 {
-    public class TestBlobAnyTree
+    public class TestBlobTreeAny
     {
         class TreeNode : ITreeNode
         {
@@ -59,7 +59,7 @@ namespace Blob.Tests
             return RandomTree(tree, seed);
         }
 
-        void CompareTree(ref BlobAnyTree blobTree, IReadOnlyList<TreeNode> tree)
+        void CompareTree(ref BlobTreeAny blobTree, IReadOnlyList<TreeNode> tree)
         {
             Assert.That(blobTree.Length, Is.EqualTo(tree.Count));
             foreach (var node in tree)
@@ -69,7 +69,7 @@ namespace Blob.Tests
             }
         }
 
-        void CompareBlobNodeWithBuildNode(in BlobAnyTree.Node blobNode, TreeNode buildNode)
+        void CompareBlobNodeWithBuildNode(in BlobTreeAny.Node blobNode, TreeNode buildNode)
         {
             // Assert.That(blobNode.Value, Is.EqualTo(buildNode.Value));
             Assert.That(blobNode.FindParentIndex(), Is.EqualTo(buildNode.ParentIndex));
@@ -132,7 +132,7 @@ namespace Blob.Tests
         {
             var nodesList = Enumerable.Range(0, 5).Select(i => CreateRandomIntTree(100, seed + i)).ToArray();
             var treeBuilders = nodesList.Select(nodes => new AnyTreeBuilder(nodes[0])).ToArray();
-            var builder = new ArrayBuilderWithItemBuilders<BlobAnyTree>(treeBuilders);
+            var builder = new ArrayBuilderWithItemBuilders<BlobTreeAny>(treeBuilders);
             var blob = builder.CreateManagedBlobAssetReference();
 
             for (var i = 0; i < nodesList.Length; i++) CompareTree(ref blob.Value[i], nodesList[i]);
@@ -143,7 +143,7 @@ namespace Blob.Tests
         {
             var nodes = CreateRandomIntTree(100, seed);
             var treeBuilder = new AnyTreeBuilder(nodes[0]);
-            var builder = new PtrBuilderWithNewValue<BlobAnyTree>(treeBuilder);
+            var builder = new PtrBuilderWithNewValue<BlobTreeAny>(treeBuilder);
             var blob = builder.CreateManagedBlobAssetReference();
             CompareTree(ref blob.Value.Value, nodes);
         }

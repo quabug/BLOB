@@ -2,7 +2,7 @@
 
 namespace Blob
 {
-    public unsafe struct BlobAnyArray
+    public unsafe struct BlobArrayAny
     {
         internal BlobArray<int> Offsets; // Offsets.Last == Data.Length
         internal BlobArray<byte> Data;

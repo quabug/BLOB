@@ -2,7 +2,7 @@
 
 namespace Blob
 {
-    public class AnyPtrBuilder<T> : Builder<BlobAnyPtr> where T : unmanaged
+    public class AnyPtrBuilder<T> : Builder<BlobPtrAny> where T : unmanaged
     {
         public T Value { get; set; }
 
@@ -11,7 +11,7 @@ namespace Blob
 
         protected override unsafe void BuildImpl(IBlobStream stream)
         {
-            stream.EnsureDataSize<BlobAnyPtr>()
+            stream.EnsureDataSize<BlobPtrAny>()
                 .WriteArrayMeta(sizeof(T))
                 .ToPatchPosition()
                 .WriteValue(Value)
@@ -20,7 +20,7 @@ namespace Blob
         }
     }
 
-    public class AnyPtrBuilder : Builder<BlobAnyPtr>
+    public class AnyPtrBuilder : Builder<BlobPtrAny>
     {
         private byte[] _bytes;
         private int _alignment;
@@ -39,7 +39,7 @@ namespace Blob
 
         protected override void BuildImpl(IBlobStream stream)
         {
-            stream.EnsureDataSize<BlobAnyPtr>()
+            stream.EnsureDataSize<BlobPtrAny>()
                 .WritePatchOffset()
                 .WriteValue(_bytes.Length)
                 .ToPatchPosition()
