@@ -37,7 +37,7 @@ namespace Blob
             return stream.AlignPatch(Utilities.AlignOf<T>());
         }
 
-        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value) where T : unmanaged
+        public static IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value) where T : unmanaged
         {
             return stream.WriteValue(value, Utilities.AlignOf<T>());
         }
