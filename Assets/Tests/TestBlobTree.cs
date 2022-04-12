@@ -54,7 +54,7 @@ namespace Blob.Tests
 
         IReadOnlyList<TreeNode<int>> CreateRandomIntTree(int count, int seed)
         {
-            var tree = Enumerable.Range(0, count).Select((value, i) => new TreeNode<int>((value + 1) * 100)).ToArray();
+            var tree = Enumerable.Range(0, count).Select(value => new TreeNode<int>((value + 1) * 100)).ToArray();
             return RandomTree(tree, seed);
         }
 
