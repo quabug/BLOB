@@ -37,21 +37,16 @@ namespace Blob
             return stream.AlignPatch(Utilities.AlignOf<T>());
         }
 
-        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, ref T value) where T : unmanaged
+        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value) where T : unmanaged
         {
-            fixed (T* valuePtr = &value)
-            {
-                var size = sizeof(T);
-                stream.Write((byte*)valuePtr, size, Utilities.AlignOf<T>());
-            }
-            return stream;
+            return stream.WriteValue(value, Utilities.AlignOf<T>());
         }
 
-        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value) where T : unmanaged
+        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value, int alignment) where T : unmanaged
         {
             var valuePtr = &value;
             var size = sizeof(T);
-            stream.Write((byte*)valuePtr, size, Utilities.AlignOf<T>());
+            stream.Write((byte*)valuePtr, size, alignment);
             return stream;
         }
 

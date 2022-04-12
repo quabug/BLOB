@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Blob.Tests
 {
@@ -34,7 +32,7 @@ namespace Blob.Tests
             Assert.That(blob.Value.GetValue<int>(), Is.EqualTo(100));
             Assert.That(blob.Value.Size, Is.EqualTo(sizeof(int)));
 
-            builder.Value = 200;
+            builder.SetValue(200);
             blob = builder.CreateManagedBlobAssetReference();
             Assert.That(blob.Value.GetValue<int>(), Is.EqualTo(200));
             Assert.That(blob.Value.Size, Is.EqualTo(sizeof(int)));

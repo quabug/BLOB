@@ -206,5 +206,20 @@ namespace Blob
             return treeBuilder;
         }
 #endregion
+
+#region SetPointerAny of StructBuilder
+        [NotNull] public static AnyPtrBuilder<TValue> SetPointerAny<T, TValue>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobPtrAny field,
+            TValue value
+        )
+            where T : unmanaged
+            where TValue : unmanaged
+        {
+            var ptrBuilder = new AnyPtrBuilder<TValue>(value);
+            builder.SetBuilder(ref field, ptrBuilder);
+            return ptrBuilder;
+        }
+#endregion
     }
 }

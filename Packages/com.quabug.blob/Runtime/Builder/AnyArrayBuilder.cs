@@ -78,18 +78,6 @@ namespace Blob
             stream.ToPosition(offsetPatchPosition).WriteArrayData(offsets);
         }
 
-        private unsafe byte[] ToBytes<T>(T value) where T : unmanaged
-        {
-            var size = sizeof(T);
-            if (size == 0) return Array.Empty<byte>();
-            var bytes = new byte[size];
-            fixed (void* destPtr = &bytes[0])
-            {
-                Buffer.MemoryCopy(&value, destPtr, size, size);
-            }
-            return bytes;
-        }
-
         private int GetAlignment<T>() where T : unmanaged
         {
             return _alignment > 0 ? _alignment : Utilities.AlignOf<T>();
