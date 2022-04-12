@@ -32,13 +32,7 @@ namespace Blob
 
         protected override void BuildImpl(IBlobStream stream)
         {
-            stream.EnsureDataSize<TArray>()
-                .WritePatchOffset()
-                .WriteValue(_array.Length)
-                .ToPatchPosition()
-                .WriteArray(_array)
-                .AlignPatch(_alignment)
-            ;
+            stream.EnsureDataSize<TArray>().WriteArray(_array).AlignPatch(_alignment);
         }
     }
 

@@ -19,10 +19,7 @@
         {
             get
             {
-                fixed (void* thisPtr = &Offset)
-                {
-                    return (T*)((byte*) thisPtr + Offset);
-                }
+                fixed (T* ptr = &Value) return ptr;
             }
         }
     }

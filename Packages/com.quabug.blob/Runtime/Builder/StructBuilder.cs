@@ -12,11 +12,14 @@ namespace Blob
         private readonly List<(int offset, IBuilder builder)> _builders = new List<(int, IBuilder)>();
         private readonly Dictionary<int, IBuilder> _fieldBuilderMap = new Dictionary<int, IBuilder>();
 
-        public void SetBuilder<TField>(ref TField field, [NotNull] IBuilder<TField> builder) where TField : unmanaged
+        public TBuilder SetBuilder<TField, TBuilder>(ref TField field, [NotNull] TBuilder builder)
+            where TField : unmanaged
+            where TBuilder : IBuilder<TField>
         {
             var fieldOffset = GetFieldOffset(ref field);
             _fieldBuilderMap[fieldOffset] = builder;
             _builders.Add((fieldOffset, builder));
+            return builder;
         }
 
         public IBuilder<TField> GetBuilder<TField>(ref TField field) where TField : unmanaged

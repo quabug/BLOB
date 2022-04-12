@@ -6,7 +6,7 @@
         <AssemblyName>Blob.Tests</AssemblyName>
         <RootNamespace>Blob.Tests</RootNamespace>
         <OutputType>Library</OutputType>
-        <TargetFrameworks>net48;net5.0;net6.0;netcoreapp3.1</TargetFrameworks>
+        <TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
         <LangVersion>8</LangVersion>
     </PropertyGroup>
 
@@ -28,20 +28,11 @@
     <ItemGroup>
       <ProjectReference Include="..\StandaloneLibrary\StandaloneLibrary.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Compile Include="..\Assets\Tests\Examples.cs">
-        <Link>Examples.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestBlobBuilder.cs">
-        <Link>TestBlobBuilder.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestBlobTree.cs">
-        <Link>TestBlobTree.cs</Link>
-      </Compile>
-      <Compile Include="..\Assets\Tests\TestUtilities.cs">
-        <Link>TestUtilities.cs</Link>
-      </Compile>
+        <Compile Include="..\Assets\Tests\*.cs">
+            <Link>Blob\%(FileName)%(Extension)</Link>
+        </Compile>
     </ItemGroup>
 
 </Project>
