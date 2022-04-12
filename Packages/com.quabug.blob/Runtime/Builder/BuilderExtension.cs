@@ -221,5 +221,30 @@ namespace Blob
             return ptrBuilder;
         }
 #endregion
+
+#region SetTreeAny of StructBuilder
+        [NotNull] public static AnyTreeBuilder SetTreeAny<T>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobTreeAny field,
+            [NotNull] ITreeNode root
+        )
+            where T : unmanaged
+        {
+            return builder.SetTreeAny(ref field, root, alignment: 0);
+        }
+
+        [NotNull] public static AnyTreeBuilder SetTreeAny<T>(
+            [NotNull] this StructBuilder<T> builder,
+            ref BlobTreeAny field,
+            [NotNull] ITreeNode root,
+            int alignment
+        )
+            where T : unmanaged
+        {
+            var treeBuilder = new AnyTreeBuilder(root) { Alignment = alignment };
+            builder.SetBuilder(ref field, treeBuilder);
+            return treeBuilder;
+        }
+#endregion
     }
 }

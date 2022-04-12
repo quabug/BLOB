@@ -13,6 +13,8 @@ namespace Blob
     {
         public ITreeNode Root { get; set; }
 
+        public int Alignment { get; set; } = 0;
+
         public AnyTreeBuilder() {}
 
         public AnyTreeBuilder([NotNull] ITreeNode root)
@@ -24,7 +26,7 @@ namespace Blob
         {
             var (endIndices, valueBuilders) = Flatten(Root);
 
-            var dataBuilder = new AnyArrayBuilder();
+            var dataBuilder = new AnyArrayBuilder(Alignment);
             foreach (var valueBuilder in valueBuilders) dataBuilder.Add(valueBuilder);
 
             var builder = new StructBuilder<BlobTreeAny>();
