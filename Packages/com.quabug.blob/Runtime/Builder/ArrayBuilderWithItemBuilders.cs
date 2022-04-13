@@ -18,6 +18,8 @@ namespace Blob
                 throw new ArgumentException($"{nameof(TArray)} must has and only has an int `Offset` field and an int `Length` field");
         }
 
+        public int Alignment { get; set; } = Utilities.AlignOf<TValue>();
+
         public ArrayBuilderWithItemBuilders([NotNull, ItemNotNull] IEnumerable<IBuilder<TValue>> builders) => _builders = builders.ToArray();
 
         public IBuilder<TValue> this[int index] => _builders[index];
@@ -25,7 +27,7 @@ namespace Blob
         protected override void BuildImpl(IBlobStream stream)
         {
             // HACK: at least align by 4? or simply assign from argument?
-            stream.EnsureDataSize<TArray>().WriteArray(_builders).AlignPatch(4);
+            stream.EnsureDataSize<TArray>().WriteArray(_builders).AlignPatch(Alignment);
         }
     }
 
