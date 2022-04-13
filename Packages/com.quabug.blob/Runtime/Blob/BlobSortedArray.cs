@@ -17,7 +17,7 @@ namespace Blob
             get
             {
                 var index = IndexOfKey(key);
-                if (index < 0) throw new IndexOutOfRangeException("cannot found value");
+                if (index < 0) throw new ArgumentException(nameof(key));
                 return ref Values[index];
             }
         }

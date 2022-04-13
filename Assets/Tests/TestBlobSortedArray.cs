@@ -43,6 +43,17 @@ namespace Blob.Tests
         }
 
         [Test]
+        public void should_throw_if_key_is_not_found()
+        {
+            var builder = new SortedArrayBuilder<int, int>();
+            var blob = builder.CreateManagedBlobAssetReference();
+            Assert.Catch<Exception>(() =>
+            {
+                ref var _ = ref blob.Value[0];
+            });
+        }
+
+        [Test]
         public void should_create_sorted_array_from_dictionary()
         {
             var map = new Dictionary<int, int>
