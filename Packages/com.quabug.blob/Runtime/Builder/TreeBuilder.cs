@@ -4,9 +4,9 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public interface ITreeNode<out T>
+    public interface ITreeNode<out T> where T : unmanaged
     {
-        T Value { get; }
+        IBuilder<T> ValueBuilder { get; }
         IReadOnlyList<ITreeNode<T>> Children { get; }
     }
 
@@ -14,26 +14,19 @@ namespace Blob
     {
         private readonly StructBuilder<BlobTree<T>> _builder = new StructBuilder<BlobTree<T>>();
 
+        public int Alignment { get; set; } = Utilities.AlignOf<T>();
+
         public TreeBuilder()
         {
             _builder.SetArray(ref _builder.Value.EndIndices, Array.Empty<int>());
             _builder.SetArray(ref _builder.Value.Nodes, Array.Empty<T>());
         }
 
-        public TreeBuilder([NotNull] ITreeNode<T> root) : this(root, Utilities.AlignOf<T>()) {}
-
-        public TreeBuilder([NotNull] ITreeNode<T> root, int alignment)
+        public TreeBuilder([NotNull] ITreeNode<T> root)
         {
-            var (endIndices, values) = Flatten(root);
+            var (endIndices, valueBuilders) = Flatten(root);
             _builder.SetArray(ref _builder.Value.EndIndices, endIndices);
-            _builder.SetArray(ref _builder.Value.Nodes, values, alignment);
-        }
-
-        public TreeBuilder([NotNull] ITreeNode<IBuilder<T>> root)
-        {
-            var (endIndices, values) = Flatten(root);
-            _builder.SetArray(ref _builder.Value.EndIndices, endIndices);
-            _builder.SetArray(ref _builder.Value.Nodes, values);
+            _builder.SetArray(ref _builder.Value.Nodes, valueBuilders, Alignment);
         }
 
         protected override void BuildImpl(IBlobStream stream)
@@ -41,17 +34,17 @@ namespace Blob
             _builder.Build(stream);
         }
 
-        private (List<int> endIndices, List<U> nodeValues) Flatten<U>(ITreeNode<U> root)
+        private (List<int> endIndices, List<IBuilder<T>> valueBuilders) Flatten(ITreeNode<T> root)
         {
             var endIndices = new List<int>();
-            var values = new List<U>();
+            var valueBuilders = new List<IBuilder<T>>();
             FlattenAndReturnEndIndex(root, 0);
-            return (endIndices, values);
+            return (endIndices, valueBuilders);
 
-            int /*endIndex*/ FlattenAndReturnEndIndex(ITreeNode<U> node, int index)
+            int /*endIndex*/ FlattenAndReturnEndIndex(ITreeNode<T> node, int index)
             {
-                var valueIndex = values.Count;
-                values.Add(node.Value);
+                var valueIndex = valueBuilders.Count;
+                valueBuilders.Add(node.ValueBuilder);
                 endIndices.Add(-1);
                 var endIndex = index + 1;
                 foreach (var child in node.Children) endIndex = FlattenAndReturnEndIndex(child, endIndex);

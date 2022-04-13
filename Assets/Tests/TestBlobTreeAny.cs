@@ -71,7 +71,7 @@ namespace Blob.Tests
 
         void CompareBlobNodeWithBuildNode(in BlobTreeAny.Node blobNode, TreeNode buildNode)
         {
-            // Assert.That(blobNode.Value, Is.EqualTo(buildNode.Value));
+            // Assert.That(blobNode.ValueBuilder, Is.EqualTo(buildNode.ValueBuilder));
             Assert.That(blobNode.FindParentIndex(), Is.EqualTo(buildNode.ParentIndex));
             Assert.That(blobNode.FindAncestorsIndices(), Is.EquivalentTo(buildNode.AncestorIndices));
             Assert.That(blobNode.FindDescendantsIndices(), Is.EquivalentTo(buildNode.DescendantsIndices));

@@ -14,7 +14,7 @@ namespace Blob
         int Position { get; }
     }
 
-    public interface IBuilder<T> : IBuilder where T : unmanaged {}
+    public interface IBuilder<out T> : IBuilder where T : unmanaged {}
 
     public abstract class Builder<T> : IBuilder<T> where T : unmanaged
     {
