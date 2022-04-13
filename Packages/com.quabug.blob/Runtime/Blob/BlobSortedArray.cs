@@ -10,6 +10,8 @@ namespace Blob
         public BlobArray<TKey> Keys;
         public BlobArray<TValue> Values;
 
+        public int Length => Values.Length;
+
         public ref TValue this[TKey key]
         {
             get

@@ -35,9 +35,17 @@ namespace Blob.Tests
         }
 
         [Test]
+        public void should_create_empty_sorted_array()
+        {
+            var builder = new SortedArrayBuilder<int, int>();
+            var blob = builder.CreateManagedBlobAssetReference();
+            Assert.That(blob.Value.Length, Is.EqualTo(0));
+        }
+
+        [Test]
         public void should_create_sorted_array_from_dictionary()
         {
-            var map = new Dictionary<int, int>()
+            var map = new Dictionary<int, int>
             {
                 {1, 1},
                 {2, 2},
@@ -53,13 +61,14 @@ namespace Blob.Tests
 
             var builder = new SortedArrayBuilder<int, int>(map);
             var blob = builder.CreateManagedBlobAssetReference();
+            Assert.That(blob.Value.Length, Is.EqualTo(map.Count));
             foreach (var pair in map) Assert.That(blob.Value[pair.Key], Is.EqualTo(pair.Value), $"key = {pair.Key}");
         }
 
         [Test]
         public void should_create_sorted_array_from_dictionary_with_duplicated_hash_code()
         {
-            var map = new Dictionary<Key, int>()
+            var map = new Dictionary<Key, int>
             {
                 {1, 1},
                 {2, 2},
@@ -75,6 +84,7 @@ namespace Blob.Tests
 
             var builder = new SortedArrayBuilder<Key, int>(map);
             var blob = builder.CreateManagedBlobAssetReference();
+            Assert.That(blob.Value.Length, Is.EqualTo(map.Count));
             foreach (var pair in map) Assert.That(blob.Value[pair.Key], Is.EqualTo(pair.Value), $"key = {pair.Key.Value}");
         }
 
@@ -85,6 +95,7 @@ namespace Blob.Tests
             var randomArray = Enumerable.Range(0, 1000).Select(_ => random.Next()).ToArray();
             var builder = new SortedArrayBuilder<Key, int>(randomArray.Select(v => (new Key(v), v)));
             var blob = builder.CreateManagedBlobAssetReference();
+            Assert.That(blob.Value.Length, Is.EqualTo(randomArray.Length));
             foreach (var key in randomArray) Assert.That(blob.Value[key], Is.EqualTo(key), $"key = {key}");
         }
     }
