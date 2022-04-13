@@ -103,7 +103,7 @@ namespace Blob.Tests
         public void should_create_sorted_array_from_random_array([Random(50)] int seed)
         {
             var random = new Random(seed);
-            var randomArray = Enumerable.Range(0, 1000).Select(_ => random.Next()).ToArray();
+            var randomArray = Enumerable.Range(0, 1000).Select(_ => random.Next()).Distinct().ToArray();
             var builder = new SortedArrayBuilder<Key, int>(randomArray.Select(v => (new Key(v), v)));
             var blob = builder.CreateManagedBlobAssetReference();
             Assert.That(blob.Value.Length, Is.EqualTo(randomArray.Length));
