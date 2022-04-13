@@ -321,8 +321,10 @@ var node = new TreeNode<int>(100, new []
 });
 var builder = new TreeBuilder<int>(node);
 var blob = builder.CreateManagedBlobAssetReference();
-Assert.That(blob.Value.FindChildrenIndices(0),
-    Is.EqualTo(new[] { 1, 2 }));
+Assert.That(blob.Value.FindChildrenIndices(0), Is.EqualTo(new[]{1,2}));
+Assert.That(blob.Value[0], Is.EqualTo(100));
+Assert.That(blob.Value[1], Is.EqualTo(200));
+Assert.That(blob.Value[2], Is.EqualTo(300));
 ```
   </sub>
 </td>
@@ -354,6 +356,70 @@ builder.SetValue(long.MaxValue);
 blob = builder.CreateManagedBlobAssetReference();
 Assert.That(blob.Value.GetValue<long>(), Is.EqualTo(long.MaxValue));
 Assert.That(blob.Value.Size, Is.EqualTo(sizeof(long)));
+```
+  </sub>
+</td>
+<td>
+  <sub>
+
+  </sub>
+</td>
+</tr>
+  
+<tr>
+<td>
+  <sub>
+
+`BlobArrayAny`
+  </sub>
+</td>
+<td>
+  <sub>
+  
+``` c#
+var builder = new AnyArrayBuilder();
+builder.Add(123L);
+builder.Add(456);
+builder.Add(1111.0f);
+builder.Add(2333.3);
+var blob = builder.CreateManagedBlobAssetReference();
+Assert.That(blob.Value.GetValue<long>(0), Is.EqualTo(123L));
+Assert.That(blob.Value.GetValue<int>(1), Is.EqualTo(456));
+Assert.That(blob.Value.GetValue<float>(2), Is.EqualTo(1111.0f));
+Assert.That(blob.Value.GetValue<double>(3), Is.EqualTo(2333.3));
+```
+  </sub>
+</td>
+<td>
+  <sub>
+
+  </sub>
+</td>
+</tr>
+    
+    
+<tr>
+<td>
+  <sub>
+
+`BlobTreeAny`
+  </sub>
+</td>
+<td>
+  <sub>
+  
+``` c#
+var intNode = new TreeNode(new ValueBuilder<int>(100));
+var longNode = new TreeNode(new ValueBuilder<long>(200));
+var doubleNode = new TreeNode(new ValueBuilder<double>(300));
+longNode.Parent = intNode;
+doubleNode.Parent = intNode;
+var builder = new AnyTreeBuilder(intNode);
+var blob = builder.CreateManagedBlobAssetReference();
+Assert.That(blob.Value.FindChildrenIndices(0), Is.EqualTo(new[]{1,2}));
+Assert.That(blob.Value[0].GetValue<int>(), Is.EqualTo(100));
+Assert.That(blob.Value[1].GetValue<long>(), Is.EqualTo(200));
+Assert.That(blob.Value[2].GetValue<double>(), Is.EqualTo(300));
 ```
   </sub>
 </td>
