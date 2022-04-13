@@ -275,4 +275,93 @@ Assert.That(blob.Value.IntArray.ToArray(), Is.EqualTo(new [] {1, 2, 3}));
   </sub>
 </td>
 </tr>
+    
+<tr>
+<td>
+  <sub>
+
+`BlobSortedArray<int, int>`
+  </sub>
+</td>
+<td>
+  <sub>
+  
+``` c#
+var builder = new SortedArrayBuilder<int, int>(
+    new []{ (1, 123), (2, 234), (3, 345) });
+var blob = builder.CreateManagedBlobAssetReference();
+Assert.That(blob.Value[1], Is.EqualTo(123));
+Assert.That(blob.Value[2], Is.EqualTo(234));
+Assert.That(blob.Value[3], Is.EqualTo(345));
+```
+  </sub>
+</td>
+<td>
+  <sub>
+
+  </sub>
+</td>
+</tr>
+    
+<tr>
+<td>
+  <sub>
+
+`BlobTree<int>`
+  </sub>
+</td>
+<td>
+  <sub>
+  
+``` c#
+var node = new TreeNode<int>(100, new []
+{
+    new TreeNode<int>(200),
+    new TreeNode<int>(300)
+});
+var builder = new TreeBuilder<int>(node);
+var blob = builder.CreateManagedBlobAssetReference();
+Assert.That(blob.Value.FindChildrenIndices(0),
+    Is.EqualTo(new[] { 1, 2 }));
+```
+  </sub>
+</td>
+<td>
+  <sub>
+
+  </sub>
+</td>
+</tr>
+    
+<tr>
+<td>
+  <sub>
+
+`BlobPtrAny`
+  </sub>
+</td>
+<td>
+  <sub>
+  
+``` c#
+var builder = new AnyPtrBuilder();
+builder.SetValue(100);
+var blob = builder.CreateManagedBlobAssetReference();
+Assert.That(blob.Value.GetValue<int>(), Is.EqualTo(100));
+Assert.That(blob.Value.Size, Is.EqualTo(sizeof(int)));
+    
+builder.SetValue(long.MaxValue);
+blob = builder.CreateManagedBlobAssetReference();
+Assert.That(blob.Value.GetValue<long>(), Is.EqualTo(long.MaxValue));
+Assert.That(blob.Value.Size, Is.EqualTo(sizeof(long)));
+```
+  </sub>
+</td>
+<td>
+  <sub>
+
+  </sub>
+</td>
+</tr>
+    
 </table>
