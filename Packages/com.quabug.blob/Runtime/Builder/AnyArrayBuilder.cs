@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -7,14 +6,10 @@ namespace Blob
     public class AnyArrayBuilder : Builder<BlobArrayAny>
     {
         private readonly List<IBuilder> _builderList = new List<IBuilder>();
-        private readonly int _alignment = 0;
+        public int Alignment { get; set; } = 0;
 
-        public AnyArrayBuilder() {}
-        public AnyArrayBuilder(int alignment)
-        {
-            if (!Utilities.IsPowerOfTwo(alignment)) throw new ArgumentException($"{nameof(alignment)} must be power of 2");
-            _alignment = alignment;
-        }
+        public int PatchPosition { get; private set; }
+        public int PatchSize { get; private set; }
 
         public int Count => _builderList.Count;
 
@@ -61,18 +56,18 @@ namespace Blob
             // write data of Data:BlobArray<byte>
             // and fill offsets
             stream.ExpandPatch(sizeof(int) * offsetLength, Utilities.AlignOf<int>()).ToPatchPosition();
-            var dataPatchPosition = stream.DataPosition;
+            PatchPosition = stream.DataPosition;
             var position = stream.DataPosition;
             for (var i = 0; i < _builderList.Count; i++)
             {
                 offsets[i] = stream.DataPosition - position;
                 _builderList[i].Build(stream);
             }
-            var dataLength = stream.DataPosition - position;
-            offsets[_builderList.Count] = dataLength;
+            PatchSize = stream.DataPosition - position;
+            offsets[_builderList.Count] = PatchSize;
 
             // write meta of Data:BlobArray<byte>
-            stream.ToPosition(dataArrayPosition).WriteArrayMeta(dataLength, dataPatchPosition - dataArrayPosition);
+            stream.ToPosition(dataArrayPosition).WriteArrayMeta(PatchSize, PatchPosition - dataArrayPosition);
 
             // write data of Offsets:BlobArray<int>
             stream.ToPosition(offsetPatchPosition).WriteArrayData(offsets);
@@ -80,7 +75,7 @@ namespace Blob
 
         private int GetAlignment<T>() where T : unmanaged
         {
-            return _alignment > 0 ? _alignment : Utilities.AlignOf<T>();
+            return Alignment > 0 ? Alignment : Utilities.AlignOf<T>();
         }
     }
 }

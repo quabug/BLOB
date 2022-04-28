@@ -13,7 +13,13 @@ namespace Blob
     {
         public ITreeNode Root { get; set; }
 
-        public int Alignment { get; set; } = 0;
+        public int Alignment
+        {
+            get => ArrayBuilder.Alignment;
+            set => ArrayBuilder.Alignment = value;
+        }
+
+        public AnyArrayBuilder ArrayBuilder { get; } = new AnyArrayBuilder();
 
         public AnyTreeBuilder() {}
 
@@ -26,7 +32,7 @@ namespace Blob
         {
             var (endIndices, valueBuilders) = Flatten(Root);
 
-            var dataBuilder = new AnyArrayBuilder(Alignment);
+            var dataBuilder = new AnyArrayBuilder();
             foreach (var valueBuilder in valueBuilders) dataBuilder.Add(valueBuilder);
 
             var builder = new StructBuilder<BlobTreeAny>();
