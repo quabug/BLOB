@@ -5,11 +5,14 @@ namespace Blob
 {
     public struct BlobTreeAny
     {
-        internal BlobArray<int> EndIndices;
-        internal BlobArrayAny Data;
+        public BlobArray<int> EndIndices;
+        public BlobArrayAny Data;
 
         public Node this[int index] => new Node(ref this, index);
         public int Length => EndIndices.Length;
+
+        public unsafe void* UnsafeDataPtr => Data.GetUnsafeValuePtr(0);
+        public int DataSize => Data.Data.Length;
 
         public readonly unsafe ref struct Node
         {

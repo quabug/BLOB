@@ -4,8 +4,8 @@ namespace Blob
 {
     public unsafe struct BlobArrayAny
     {
-        internal BlobArray<int> Offsets; // Offsets.Last == Data.Length
-        internal BlobArray<byte> Data;
+        public BlobArray<int> Offsets; // Offsets.Last == Data.Length
+        public BlobArray<byte> Data;
 
         public int Length => Offsets.Length - 1;
 
