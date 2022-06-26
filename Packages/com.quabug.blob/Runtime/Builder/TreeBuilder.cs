@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public interface ITreeNode<out T> where T : unmanaged
+    public interface ITreeNode<T> where T : unmanaged
     {
         IBuilder<T> ValueBuilder { get; }
         IReadOnlyList<ITreeNode<T>> Children { get; }
