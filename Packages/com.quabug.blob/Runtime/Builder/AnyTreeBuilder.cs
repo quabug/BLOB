@@ -32,12 +32,11 @@ namespace Blob
         {
             var (endIndices, valueBuilders) = Flatten(Root);
 
-            var dataBuilder = new AnyArrayBuilder();
-            foreach (var valueBuilder in valueBuilders) dataBuilder.Add(valueBuilder);
+            foreach (var valueBuilder in valueBuilders) ArrayBuilder.Add(valueBuilder);
 
             var builder = new StructBuilder<BlobTreeAny>();
             builder.SetArray(ref builder.Value.EndIndices, endIndices);
-            builder.SetBuilder(ref builder.Value.Data, dataBuilder);
+            builder.SetBuilder(ref builder.Value.Data, ArrayBuilder);
             builder.Build(stream);
         }
 

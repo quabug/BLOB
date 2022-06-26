@@ -84,7 +84,7 @@ namespace Blob
 
         [NotNull] public static UnityBlobStringBuilder SetString<T>(
             [NotNull] this StructBuilder<T> builder,
-            ref Unity.Entities.BlobString field,
+            ref BlobString field,
             [NotNull] string value
         )
             where T : unmanaged
