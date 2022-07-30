@@ -8,7 +8,7 @@ namespace Blob
         private readonly IBlobStream _stream;
         private readonly int _position;
 
-        public UnsafeBlobStreamValue([NotNull] IBlobStream stream) : this(stream, stream.DataPosition) {}
+        public UnsafeBlobStreamValue([NotNull] IBlobStream stream) : this(stream, stream.Position) {}
         public UnsafeBlobStreamValue([NotNull] IBlobStream stream, int position)
         {
             _stream = stream;

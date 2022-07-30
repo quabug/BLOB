@@ -5,9 +5,13 @@ namespace Blob
     public class AnyValueBuilder : IBuilder
     {
         private byte[] _data;
-        private int _alignment;
 
-        public int Position { get; private set; }
+        public int Alignment { get; set; } = 0;
+
+        public int DataPosition { get; private set; }
+        public int DataSize { get; private set; }
+        public int PatchPosition { get; private set; }
+        public int PatchSize { get; private set; }
 
         public void SetValue<T>(T value) where T : unmanaged
         {
@@ -18,13 +22,15 @@ namespace Blob
         {
             if (!Utilities.IsPowerOfTwo(alignment)) throw new ArgumentException($"{nameof(alignment)} must be a power of two number");
             _data = ToBytes(value);
-            _alignment = alignment > 0 ? alignment : Utilities.AlignOf<T>();
         }
 
         public void Build(IBlobStream stream)
         {
-            Position = stream.DataPosition;
-            stream.WriteArrayData(_data, _alignment);
+            DataPosition = stream.Position;
+            DataSize = _data.Length;
+            PatchPosition = stream.PatchPosition;
+            stream.WriteArrayData(_data, stream.GetAlignment(Alignment));
+            PatchSize = stream.PatchPosition - PatchPosition;
         }
 
         private unsafe byte[] ToBytes<T>(T value) where T : unmanaged

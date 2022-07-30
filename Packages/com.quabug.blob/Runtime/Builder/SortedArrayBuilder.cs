@@ -32,9 +32,9 @@ namespace Blob
         {
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref BlobSortedArray<TKey, TValue> data)
         {
-            var builder = new StructBuilder<BlobSortedArray<TKey, TValue>>();
+            var builder = new StructBuilder<BlobSortedArray<TKey, TValue>> { DataAlignment = DataAlignment, PatchAlignment = PatchAlignment };
             var nodes = Builders.OrderBy(node => node.Key.GetHashCode()).ToArray();
             builder.SetArray(ref builder.Value.Keys, nodes.Select(node => node.Key));
             builder.SetArray(ref builder.Value.Values, nodes.Select(node => node.Value));

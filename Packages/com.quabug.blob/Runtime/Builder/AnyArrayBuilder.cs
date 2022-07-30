@@ -8,9 +8,6 @@ namespace Blob
         private readonly List<IBuilder> _builderList = new List<IBuilder>();
         public int Alignment { get; set; } = 0;
 
-        public int PatchPosition { get; private set; }
-        public int PatchSize { get; private set; }
-
         public int Count => _builderList.Count;
 
         public void Insert<T>(int index, T item) where T : unmanaged
@@ -42,35 +39,36 @@ namespace Blob
             _builderList.Clear();
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override unsafe void BuildImpl(IBlobStream stream, ref BlobArrayAny data)
         {
             // write meta of Offsets:BlobArray<int>
             var offsetLength = _builderList.Count + 1;
-            stream.EnsureDataSize<BlobArrayAny>().WriteArrayMeta(offsetLength);
+            data.Offsets.Length = offsetLength;
+            data.Offsets.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Offsets.Offset);
 
-            var dataArrayPosition = stream.DataPosition;
-            var offsetPatchPosition = stream.PatchPosition;
             // TODO: stackalloc for frameworks later than .NET Standard 2.1?
             var offsets = new int[offsetLength];
 
+            // reserve space of offset array
+            stream.ExpandPatch(sizeof(int) * offsetLength, stream.GetAlignment(PatchAlignment));
+            data.Data.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Data.Offset);
+            
             // write data of Data:BlobArray<byte>
             // and fill offsets
-            stream.ExpandPatch(sizeof(int) * offsetLength, Utilities.AlignOf<int>()).ToPatchPosition();
-            PatchPosition = stream.DataPosition;
-            var position = stream.DataPosition;
+            var position = stream.PatchPosition;
             for (var i = 0; i < _builderList.Count; i++)
             {
-                offsets[i] = stream.DataPosition - position;
+                offsets[i] = stream.PatchPosition - position;
+                stream.ToPatchPosition();
                 _builderList[i].Build(stream);
             }
-            PatchSize = stream.DataPosition - position;
-            offsets[_builderList.Count] = PatchSize;
+            var patchSize = stream.PatchPosition - position;
+            offsets[_builderList.Count] = patchSize;
 
-            // write meta of Data:BlobArray<byte>
-            stream.ToPosition(dataArrayPosition).WriteArrayMeta(PatchSize, PatchPosition - dataArrayPosition);
+            data.Data.Length = patchSize;
 
             // write data of Offsets:BlobArray<int>
-            stream.ToPosition(offsetPatchPosition).WriteArrayData(offsets);
+            stream.ToPosition(PatchPosition).WriteArrayData(offsets);
         }
 
         private int GetAlignment<T>() where T : unmanaged

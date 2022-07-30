@@ -55,7 +55,7 @@ namespace Blob.Tests
             AssertBlobEqual(unityBlob, data);
         }
 
-        [Ignore("bug report: https://fogbugz.unity3d.com/default.asp?1413355_hgspkf51e4ioflql")]
+        // [Ignore("bug report: https://fogbugz.unity3d.com/default.asp?1413355_hgspkf51e4ioflql")]
         [Test]
         public void should_have_same_blob_for_blob_ptr_value()
         {
@@ -67,7 +67,7 @@ namespace Blob.Tests
             unityData.Double = 4;
             var unityBlob = unityBuilder.CreateBlobAssetReference<BlobPtr>(Allocator.Temp);
 
-            var blobBuilder = new UnityBlobPtrBuilderWithNewValue<SimpleBlob>(unityBlob.Value.Value);
+            var blobBuilder = new UnityBlobPtrBuilderWithNewValue<SimpleBlob>(unityBlob.Value.Value) { UseUnityBlobDataAlignment = true };
             var data = blobBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);
@@ -181,7 +181,7 @@ namespace Blob.Tests
             AssertBlobEqual(unityBlob, data);
         }
 
-        [Ignore("bug report: https://fogbugz.unity3d.com/default.asp?1413366_9iul87jv64suk5tv")]
+        // [Ignore("bug report: https://fogbugz.unity3d.com/default.asp?1413366_9iul87jv64suk5tv")]
         [Test]
         public void should_have_same_blob_for_blob_ptr_array()
         {
@@ -202,8 +202,8 @@ namespace Blob.Tests
                 .Select(index => unityBlob.Value.Value[index])
                 .ToArray()
             ;
-            var blobArrayBuilder = new UnityBlobArrayBuilder<SimpleBlob>(values);
-            var blobPtrBuilder = new UnityBlobPtrBuilderWithNewValue<BlobArray>(blobArrayBuilder);
+            var blobArrayBuilder = new UnityBlobArrayBuilder<SimpleBlob>(values) { UseUnityBlobDataAlignment = true };
+            var blobPtrBuilder = new UnityBlobPtrBuilderWithNewValue<BlobArray>(blobArrayBuilder) { UseUnityBlobDataAlignment = true };
             var data = blobPtrBuilder.CreateUnityBlobAssetReference();
 
             AssertBlobEqual(unityBlob, data);

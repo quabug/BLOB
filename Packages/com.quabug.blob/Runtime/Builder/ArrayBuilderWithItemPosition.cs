@@ -15,31 +15,39 @@ namespace Blob
 
         public ArrayBuilderWithItemPosition() : this(Array.Empty<TValue>()) {}
         public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
-        public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items, int alignment) : this(items.ToArray(), alignment) {}
-        public ArrayBuilderWithItemPosition([NotNull] TValue[] array) : this(array, Utilities.AlignOf<TValue>()) {}
-        public ArrayBuilderWithItemPosition([NotNull] TValue[] array, int alignment) : base(array, alignment)
+        public ArrayBuilderWithItemPosition([NotNull] TValue[] array) : base(array)
         {
             _builders = new ValuePositionBuilder[array.Length];
             for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder();
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref TArray data)
         {
-            var patchPosition = stream.PatchPosition;
             var valueSize = sizeof(TValue);
-            base.BuildImpl(stream);
-            for (var i = 0; i < _builders.Length; i++) _builders[i].Position = patchPosition + valueSize * i;
+            base.BuildImpl(stream, ref data);
+            for (var i = 0; i < _builders.Length; i++)
+            {
+                var builder = _builders[i];
+                builder.DataPosition = PatchPosition + valueSize * i;
+                builder.DataSize = valueSize;
+                builder.PatchPosition = PatchPosition + PatchSize;
+                builder.PatchSize = 0;
+            }
         }
 
         public class ValuePositionBuilder : IBuilder<TValue>
         {
             public void Build(IBlobStream stream)
             {
-                // this builder is only made for record Position
+                // this builder is only made for record DataPosition
                 // so no build process here
+                
             }
 
-            public int Position { get; internal set; }
+            public int DataPosition { get; internal set; }
+            public int DataSize { get; internal set; }
+            public int PatchPosition { get; internal set; }
+            public int PatchSize { get; internal set; }
         }
     }
 

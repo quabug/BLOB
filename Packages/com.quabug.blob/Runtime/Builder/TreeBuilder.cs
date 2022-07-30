@@ -29,7 +29,7 @@ namespace Blob
             _builder.SetArray(ref _builder.Value.Nodes, valueBuilders, Alignment);
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref BlobTree<T> data)
         {
             _builder.Build(stream);
         }

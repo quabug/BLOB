@@ -22,9 +22,9 @@ namespace Blob
             _refBuilder = refBuilder;
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref TPtr data)
         {
-            stream.EnsureDataSize<TPtr>().WriteOffset(_refBuilder.Position);
+            stream.WriteOffset(_refBuilder.DataPosition);
         }
     }
 

@@ -16,7 +16,7 @@ namespace Blob
             where TField : unmanaged
             where TBuilder : IBuilder<TField>
         {
-            var fieldOffset = GetFieldOffset(ref field);
+            var fieldOffset = _value.GetFieldOffset(ref field);
             _fieldBuilderMap[fieldOffset] = builder;
             _builders.Add((fieldOffset, builder));
             return builder;
@@ -24,27 +24,15 @@ namespace Blob
 
         public IBuilder<TField> GetBuilder<TField>(ref TField field) where TField : unmanaged
         {
-            var fieldOffset = GetFieldOffset(ref field);
+            var fieldOffset = _value.GetFieldOffset(ref field);
             return (IBuilder<TField>)_fieldBuilderMap[fieldOffset];
         }
 
-        private int GetFieldOffset<TField>(ref TField field) where TField : unmanaged
+        protected override void BuildImpl(IBlobStream stream, ref T data)
         {
-            fixed (void* valuePtr = &_value)
-            fixed (void* fieldPtr = &field)
-            {
-                if (fieldPtr < valuePtr || fieldPtr >= (byte*)valuePtr + sizeof(T))
-                    throw new ArgumentException("invalid field");
-                return (int)((byte*)fieldPtr - (byte*)valuePtr);
-            }
-        }
-
-        protected override void BuildImpl(IBlobStream stream)
-        {
-            stream.EnsureDataSize<T>();
             foreach (var (offset, builder) in _builders)
             {
-                stream.DataPosition = Position + offset;
+                stream.Position = DataPosition + offset;
                 // TODO: restrict on writing-size of field value?
                 builder.Build(stream);
             }

@@ -4,11 +4,11 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public static class BlobStreamExtension
+    public static partial class BlobStreamExtension
     {
-        public static IBlobStream EnsureDataSize([NotNull] this IBlobStream stream, int size, int alignment)
+        public static IBlobStream EnsureDataSize([NotNull] this IBlobStream stream, int size, int alignment = 0)
         {
-            var expectedPatchPosition = (int)Utilities.Align(stream.DataPosition + size, alignment);
+            var expectedPatchPosition = (int)Utilities.Align(stream.Position + size, stream.GetAlignment(alignment));
             stream.PatchPosition = Math.Max(stream.PatchPosition, expectedPatchPosition);
             // expand stream buffer by patch position
             if (stream.Length < stream.PatchPosition) stream.Length = stream.PatchPosition;
@@ -17,32 +17,22 @@ namespace Blob
 
         public static unsafe IBlobStream EnsureDataSize<T>([NotNull] this IBlobStream stream) where T : unmanaged
         {
-            return stream.EnsureDataSize(sizeof(T), Utilities.AlignOf<T>());
+            return stream.EnsureDataSize(sizeof(T));
         }
 
-        public static IBlobStream ExpandPatch([NotNull] this IBlobStream stream, int size, int alignment)
+        public static IBlobStream ExpandPatch([NotNull] this IBlobStream stream, int size, int alignment = 0)
         {
-            stream.PatchPosition = (int)Utilities.Align(stream.PatchPosition + size, alignment);
+            stream.PatchPosition = (int)Utilities.Align(stream.PatchPosition + size, stream.GetAlignment(alignment));
             return stream;
         }
 
-        public static IBlobStream AlignPatch([NotNull] this IBlobStream stream, int alignment)
+        public static IBlobStream AlignPatch([NotNull] this IBlobStream stream, int alignment = 0)
         {
-            stream.PatchPosition = (int)Utilities.Align(stream.PatchPosition, alignment);
+            stream.PatchPosition = (int)Utilities.Align(stream.PatchPosition, stream.GetAlignment(alignment));
             return stream;
         }
 
-        public static IBlobStream AlignPatch<T>([NotNull] this IBlobStream stream) where T : unmanaged
-        {
-            return stream.AlignPatch(Utilities.AlignOf<T>());
-        }
-
-        public static IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value) where T : unmanaged
-        {
-            return stream.WriteValue(value, Utilities.AlignOf<T>());
-        }
-
-        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value, int alignment) where T : unmanaged
+        public static unsafe IBlobStream WriteValue<T>([NotNull] this IBlobStream stream, T value, int alignment = 0) where T : unmanaged
         {
             var valuePtr = &value;
             var size = sizeof(T);
@@ -56,14 +46,9 @@ namespace Blob
             return stream;
         }
 
-        public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array, int alignment) where T : unmanaged
+        public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array, int alignment = 0) where T : unmanaged
         {
             return stream.WriteArrayMeta(array.Length).ToPatchPosition().WriteArrayData(array, alignment);
-        }
-
-        public static IBlobStream WriteArray<T>([NotNull] this IBlobStream stream, T[] array) where T : unmanaged
-        {
-            return stream.WriteArray(array, Utilities.AlignOf<T>());
         }
 
         public static unsafe IBlobStream WriteArray<T>(
@@ -71,14 +56,14 @@ namespace Blob
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder<T>> itemBuilders
         ) where T : unmanaged
         {
-            return stream.WriteArray(itemBuilders, sizeof(T), Utilities.AlignOf<T>());
+            return stream.WriteArray(itemBuilders, sizeof(T), stream.Alignment);
         }
 
         public static IBlobStream WriteArray(
             [NotNull] this IBlobStream stream,
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder> itemBuilders,
             int itemSize,
-            int alignment
+            int alignment = 0
         )
         {
             return stream.WriteArrayMeta(itemBuilders.Count).ToPatchPosition().WriteArrayData(itemBuilders, itemSize, alignment);
@@ -94,12 +79,7 @@ namespace Blob
             return stream.WriteValue(patchOffset).WriteValue(length);
         }
 
-        public static IBlobStream WriteArrayData<T>([NotNull] this IBlobStream stream, T[] array) where T : unmanaged
-        {
-            return stream.WriteArrayData(array, Utilities.AlignOf<T>());
-        }
-
-        public static unsafe IBlobStream WriteArrayData<T>([NotNull] this IBlobStream stream, T[] array, int alignment) where T : unmanaged
+        public static unsafe IBlobStream WriteArrayData<T>([NotNull] this IBlobStream stream, T[] array, int alignment = 0) where T : unmanaged
         {
             if (array.Length == 0) return stream;
             var valueSize = sizeof(T);
@@ -113,21 +93,21 @@ namespace Blob
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder<T>> itemBuilders
         ) where T : unmanaged
         {
-            return stream.WriteArrayData(itemBuilders, sizeof(T), Utilities.AlignOf<T>());
+            return stream.WriteArrayData(itemBuilders, sizeof(T), stream.Alignment);
         }
 
         public static IBlobStream WriteArrayData(
             [NotNull] this IBlobStream stream,
             [NotNull, ItemNotNull] IReadOnlyList<IBuilder> itemBuilders,
             int itemSize,
-            int alignment
+            int alignment = 0
         )
         {
             var patchPosition = stream.PatchPosition;
             stream.ExpandPatch(itemSize * itemBuilders.Count, alignment);
             for (var i = 0; i < itemBuilders.Count; i++)
             {
-                stream.DataPosition = patchPosition + itemSize * i;
+                stream.Position = patchPosition + itemSize * i;
                 itemBuilders[i].Build(stream);
             }
             return stream;
@@ -135,7 +115,7 @@ namespace Blob
 
         public static IBlobStream WriteOffset([NotNull] this IBlobStream stream, int position)
         {
-            var offset = position - stream.DataPosition;
+            var offset = stream.Offset(position);
             stream.WriteValue(offset);
             return stream;
         }
@@ -152,8 +132,43 @@ namespace Blob
 
         public static IBlobStream ToPosition([NotNull] this IBlobStream stream, int position)
         {
-            stream.DataPosition = position;
+            stream.Position = position;
             return stream;
+        }
+
+        public static int PatchOffset([NotNull] this IBlobStream stream)
+        {
+            return stream.Offset(stream.PatchPosition);
+        }
+        
+        public static int Offset([NotNull] this IBlobStream stream, int position)
+        {
+            return position - stream.Position;
+        }
+
+        public static ref T As<T>(this IBlobStream stream, int position) where T : unmanaged
+        {
+            return ref new UnsafeBlobStreamValue<T>(stream, position).Value;
+        }
+        
+        public static ref T DataAs<T>(this IBlobStream stream) where T : unmanaged
+        {
+            return ref As<T>(stream, stream.Position);
+        }
+        
+        public static ref T PatchAs<T>(this IBlobStream stream) where T : unmanaged
+        {
+            return ref As<T>(stream, stream.PatchPosition);
+        }
+        
+        public static ref T EnsureDataAs<T>([NotNull] this IBlobStream stream) where T : unmanaged
+        {
+            return ref stream.EnsureDataAs<T>(stream.Alignment);
+        }
+        
+        public static unsafe ref T EnsureDataAs<T>([NotNull] this IBlobStream stream, int alignment) where T : unmanaged
+        {
+            return ref stream.EnsureDataSize(sizeof(T), alignment).DataAs<T>();
         }
     }
 }

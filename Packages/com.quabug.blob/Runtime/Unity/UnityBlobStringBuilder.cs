@@ -9,7 +9,7 @@ namespace Blob
     public class UnityBlobStringBuilder : ArrayBuilder<byte, Unity.Entities.BlobString>
     {
         public UnityBlobStringBuilder() {}
-        public UnityBlobStringBuilder([NotNull] string str) : base(Encoding.UTF8.GetBytes(str).Append((byte)0), 4) {}
+        public UnityBlobStringBuilder([NotNull] string str) : base(Encoding.UTF8.GetBytes(str).Append((byte)0)) => PatchAlignment = 4;
     }
 }
 
