@@ -9,7 +9,7 @@ namespace Blob
         where TValue : unmanaged
         where TArray : unmanaged
     {
-        private readonly ValuePositionBuilder[] _builders;
+        private readonly ValuePositionBuilder<TValue>[] _builders;
 
         public IBuilder<TValue> this[int index] => _builders[index];
 
@@ -17,8 +17,8 @@ namespace Blob
         public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
         public ArrayBuilderWithItemPosition([NotNull] TValue[] array) : base(array)
         {
-            _builders = new ValuePositionBuilder[array.Length];
-            for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder();
+            _builders = new ValuePositionBuilder<TValue>[array.Length];
+            for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder<TValue>();
         }
 
         protected override void BuildImpl(IBlobStream stream, ref TArray data)
@@ -33,21 +33,6 @@ namespace Blob
                 builder.PatchPosition = PatchPosition + PatchSize;
                 builder.PatchSize = 0;
             }
-        }
-
-        public class ValuePositionBuilder : IBuilder<TValue>
-        {
-            public void Build(IBlobStream stream)
-            {
-                // this builder is only made for record DataPosition
-                // so no build process here
-                
-            }
-
-            public int DataPosition { get; internal set; }
-            public int DataSize { get; internal set; }
-            public int PatchPosition { get; internal set; }
-            public int PatchSize { get; internal set; }
         }
     }
 

@@ -10,6 +10,12 @@ namespace Blob
 
         public int Count => _builderList.Count;
 
+        private readonly ValuePositionBuilder<BlobArray<int>> _offsetsBuilder = new ValuePositionBuilder<BlobArray<int>>();
+        public IBuilder<BlobArray<int>> OffsetsBuilder => _offsetsBuilder;
+        
+        public readonly ValuePositionBuilder<BlobArray<byte>> _dataBuilder = new ValuePositionBuilder<BlobArray<byte>>();
+        public IBuilder<BlobArray<byte>> DataBuilder => _dataBuilder;
+
         public void Insert<T>(int index, T item) where T : unmanaged
         {
             var builder = new AnyValueBuilder();
@@ -50,7 +56,8 @@ namespace Blob
             var offsets = new int[offsetLength];
 
             // reserve space of offset array
-            stream.ExpandPatch(sizeof(int) * offsetLength, stream.GetAlignment(PatchAlignment));
+            var offsetsSize = sizeof(int) * offsetLength;
+            stream.ExpandPatch(offsetsSize, stream.GetAlignment(PatchAlignment));
             data.Data.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Data.Offset);
             
             // write data of Data:BlobArray<byte>
@@ -69,6 +76,16 @@ namespace Blob
 
             // write data of Offsets:BlobArray<int>
             stream.ToPosition(PatchPosition).WriteArrayData(offsets);
+
+            _offsetsBuilder.DataPosition = DataPosition + data.GetFieldOffset(ref data.Offsets);
+            _offsetsBuilder.DataSize = sizeof(BlobArray<int>);
+            _offsetsBuilder.PatchPosition = DataPosition + data.GetFieldOffset(ref data.Offsets.Offset) + data.Offsets.Offset;
+            _offsetsBuilder.PatchSize = offsetsSize;
+            
+            _dataBuilder.DataPosition = DataPosition + data.GetFieldOffset(ref data.Data);
+            _dataBuilder.DataSize = sizeof(BlobArray<byte>);
+            _dataBuilder.PatchPosition = DataPosition + data.GetFieldOffset(ref data.Data.Offset) + data.Data.Offset;
+            _dataBuilder.PatchSize = data.Data.Length;
         }
 
         private int GetAlignment<T>() where T : unmanaged

@@ -9,7 +9,7 @@ namespace Blob
         where TValue : unmanaged
         where TArray : unmanaged
     {
-        private readonly TValue[] _array;
+        protected readonly TValue[] _Array;
 
         static ArrayBuilder()
         {
@@ -20,11 +20,11 @@ namespace Blob
 
         public ArrayBuilder() : this(Array.Empty<TValue>()) {}
         public ArrayBuilder([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
-        public ArrayBuilder([NotNull] TValue[] array) => _array = array;
+        public ArrayBuilder([NotNull] TValue[] array) => _Array = array;
 
         protected override void BuildImpl(IBlobStream stream, ref TArray data)
         {
-            stream.WriteArray(_array, PatchAlignment);
+            stream.WriteArray(_Array, PatchAlignment);
         }
     }
 

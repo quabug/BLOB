@@ -13,7 +13,7 @@ namespace Blob
         {
             _stream = stream;
             _position = position;
-            if (stream.Length <= position) throw new ArgumentException("invalid position");
+            if (stream.Length < position + sizeof(T)) throw new ArgumentException("invalid position");
         }
 
         public ref T Value
