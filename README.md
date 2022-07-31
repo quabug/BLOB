@@ -154,9 +154,12 @@ struct IntPtr
   <sub>
   
 ``` c#
-var builder = new PtrBuilderWithNewValue<int>(1);
+var builder = new StructBuilder<IntPtr>();
+var valueBuilder = builder.SetValue(ref builder.Value.Int, 1);
+builder.SetPointer(ref builder.Value.Ptr2, valueBuilder);
 var blob = builder.CreateManagedBlobAssetReference();
-Assert.That(blob.Value.Value, Is.EqualTo(1));
+Assert.That(blob.Value.Ptr1.Value, Is.EqualTo(1));
+Assert.That(blob.Value.Ptr2.Value, Is.EqualTo(1));
 ```
   </sub>
 </td>
