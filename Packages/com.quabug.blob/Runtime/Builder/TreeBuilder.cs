@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Blob
 {
-    public interface ITreeNode<out T> where T : unmanaged
+    public interface ITreeNode<T> where T : unmanaged
     {
         IBuilder<T> ValueBuilder { get; }
         IReadOnlyList<ITreeNode<T>> Children { get; }
@@ -29,7 +29,7 @@ namespace Blob
             _builder.SetArray(ref _builder.Value.Nodes, valueBuilders, Alignment);
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref BlobTree<T> data)
         {
             _builder.Build(stream);
         }

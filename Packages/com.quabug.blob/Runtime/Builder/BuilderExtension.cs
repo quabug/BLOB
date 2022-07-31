@@ -12,28 +12,16 @@ namespace Blob
             return new ManagedBlobAssetReference<T>(builder.CreateBlob());
         }
 
-        [NotNull]
-        public static ManagedBlobAssetReference CreateManagedBlobAssetReference([NotNull] this IBuilder builder)
-        {
-            return builder.CreateManagedBlobAssetReference(1);
-        }
-
-        [NotNull] public static ManagedBlobAssetReference CreateManagedBlobAssetReference([NotNull] this IBuilder builder, int alignment)
+        [NotNull] public static ManagedBlobAssetReference CreateManagedBlobAssetReference([NotNull] this IBuilder builder, int alignment = 0)
         {
             return new ManagedBlobAssetReference(builder.CreateBlob(alignment));
         }
 
-        [NotNull]
-        public static byte[] CreateBlob([NotNull] this IBuilder builder)
-        {
-            return builder.CreateBlob(1);
-        }
-
-        [NotNull] public static byte[] CreateBlob([NotNull] this IBuilder builder, int alignment)
+        [NotNull] public static byte[] CreateBlob([NotNull] this IBuilder builder, int alignment = 0)
         {
             using var stream = new BlobMemoryStream();
             builder.Build(stream);
-            stream.Length = (int)Utilities.Align(stream.Length, alignment);
+            stream.Length = (int)Utilities.Align(stream.Length, stream.GetAlignment(alignment));
             return stream.ToArray();
         }
 
@@ -77,19 +65,8 @@ namespace Blob
         [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
-            [NotNull] IEnumerable<TValue> items
-        )
-            where T : unmanaged
-            where TValue : unmanaged
-        {
-            return builder.SetArray(ref field, items, Utilities.AlignOf<TValue>());
-        }
-
-        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
-            [NotNull] this StructBuilder<T> builder,
-            ref BlobArray<TValue> field,
             [NotNull] IEnumerable<TValue> items,
-            int alignment
+            int alignment = 0
         )
             where T : unmanaged
             where TValue : unmanaged
@@ -100,24 +77,13 @@ namespace Blob
         [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
-            [NotNull] TValue[] items
-        )
-            where T : unmanaged
-            where TValue : unmanaged
-        {
-            return builder.SetArray(ref field, items, Utilities.AlignOf<TValue>());
-        }
-
-        [NotNull] public static ArrayBuilder<TValue> SetArray<T, TValue>(
-            [NotNull] this StructBuilder<T> builder,
-            ref BlobArray<TValue> field,
             [NotNull] TValue[] items,
-            int alignment
+            int alignment = 0
         )
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilder<TValue>(items, alignment);
+            var arrayBuilder = new ArrayBuilder<TValue>(items) { PatchAlignment = alignment };
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }
@@ -125,24 +91,13 @@ namespace Blob
         [NotNull] public static ArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobArray<TValue> field,
-            [NotNull] IEnumerable<IBuilder<TValue>> itemBuilders
-        )
-            where T : unmanaged
-            where TValue : unmanaged
-        {
-            return builder.SetArray(ref field, itemBuilders, Utilities.AlignOf<TValue>());
-        }
-
-        [NotNull] public static ArrayBuilderWithItemBuilders<TValue> SetArray<T, TValue>(
-            [NotNull] this StructBuilder<T> builder,
-            ref BlobArray<TValue> field,
             [NotNull] IEnumerable<IBuilder<TValue>> itemBuilders,
-            int alignment
+            int alignment = 0
         )
             where T : unmanaged
             where TValue : unmanaged
         {
-            var arrayBuilder = new ArrayBuilderWithItemBuilders<TValue>(itemBuilders) { Alignment = alignment };
+            var arrayBuilder = new ArrayBuilderWithItemBuilders<TValue>(itemBuilders) { PatchAlignment = alignment };
             builder.SetBuilder(ref field, arrayBuilder);
             return arrayBuilder;
         }
@@ -183,19 +138,8 @@ namespace Blob
         [NotNull] public static TreeBuilder<TValue> SetTree<T, TValue>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobTree<TValue> field,
-            [NotNull] ITreeNode<TValue> root
-        )
-            where T : unmanaged
-            where TValue : unmanaged
-        {
-            return builder.SetTree(ref field, root, Utilities.AlignOf<TValue>());
-        }
-
-        [NotNull] public static TreeBuilder<TValue> SetTree<T, TValue>(
-            [NotNull] this StructBuilder<T> builder,
-            ref BlobTree<TValue> field,
             [NotNull] ITreeNode<TValue> root,
-            int alignment
+            int alignment = 0
         )
             where T : unmanaged
             where TValue : unmanaged
@@ -225,22 +169,12 @@ namespace Blob
         [NotNull] public static AnyTreeBuilder SetTreeAny<T>(
             [NotNull] this StructBuilder<T> builder,
             ref BlobTreeAny field,
-            [NotNull] ITreeNode root
-        )
-            where T : unmanaged
-        {
-            return builder.SetTreeAny(ref field, root, alignment: 0);
-        }
-
-        [NotNull] public static AnyTreeBuilder SetTreeAny<T>(
-            [NotNull] this StructBuilder<T> builder,
-            ref BlobTreeAny field,
             [NotNull] ITreeNode root,
-            int alignment
+            int alignment = 0
         )
             where T : unmanaged
         {
-            var treeBuilder = new AnyTreeBuilder(root) { Alignment = alignment };
+            var treeBuilder = new AnyTreeBuilder(root) { PatchAlignment = alignment };
             builder.SetBuilder(ref field, treeBuilder);
             return treeBuilder;
         }

@@ -9,8 +9,7 @@ namespace Blob
         where TValue : unmanaged
         where TArray : unmanaged
     {
-        private readonly TValue[] _array;
-        private readonly int _alignment;
+        protected readonly TValue[] _Array;
 
         static ArrayBuilder()
         {
@@ -21,24 +20,18 @@ namespace Blob
 
         public ArrayBuilder() : this(Array.Empty<TValue>()) {}
         public ArrayBuilder([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
-        public ArrayBuilder([NotNull] IEnumerable<TValue> items, int alignment) : this(items.ToArray(), alignment) {}
-        public ArrayBuilder([NotNull] TValue[] array) : this(array, Utilities.AlignOf<TValue>()) {}
-        public ArrayBuilder([NotNull] TValue[] array, int alignment)
-        {
-            _array = array;
-            _alignment = alignment;
-            if (!Utilities.IsPowerOfTwo(_alignment)) throw new ArgumentException($"{nameof(alignment)} must be power of 2");
-        }
+        public ArrayBuilder([NotNull] TValue[] array) => _Array = array;
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref TArray data)
         {
-            stream.EnsureDataSize<TArray>().WriteArray(_array).AlignPatch(_alignment);
+            stream.WriteArray(_Array, PatchAlignment);
         }
     }
 
     public class ArrayBuilder<TValue> : ArrayBuilder<TValue, BlobArray<TValue>> where TValue : unmanaged
     {
+        public ArrayBuilder() : this(Array.Empty<TValue>()) {}
+        public ArrayBuilder([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
         public ArrayBuilder([NotNull] TValue[] array) : base(array) {}
-        public ArrayBuilder([NotNull] TValue[] array, int alignment) : base(array, alignment) {}
     }
 }

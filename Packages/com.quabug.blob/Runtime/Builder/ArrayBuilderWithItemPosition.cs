@@ -9,37 +9,30 @@ namespace Blob
         where TValue : unmanaged
         where TArray : unmanaged
     {
-        private readonly ValuePositionBuilder[] _builders;
+        private readonly ValuePositionBuilder<TValue>[] _builders;
 
         public IBuilder<TValue> this[int index] => _builders[index];
 
         public ArrayBuilderWithItemPosition() : this(Array.Empty<TValue>()) {}
         public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items) : this(items.ToArray()) {}
-        public ArrayBuilderWithItemPosition([NotNull] IEnumerable<TValue> items, int alignment) : this(items.ToArray(), alignment) {}
-        public ArrayBuilderWithItemPosition([NotNull] TValue[] array) : this(array, Utilities.AlignOf<TValue>()) {}
-        public ArrayBuilderWithItemPosition([NotNull] TValue[] array, int alignment) : base(array, alignment)
+        public ArrayBuilderWithItemPosition([NotNull] TValue[] array) : base(array)
         {
-            _builders = new ValuePositionBuilder[array.Length];
-            for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder();
+            _builders = new ValuePositionBuilder<TValue>[array.Length];
+            for (var i = 0; i < _builders.Length; i++) _builders[i] = new ValuePositionBuilder<TValue>();
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref TArray data)
         {
-            var patchPosition = stream.PatchPosition;
             var valueSize = sizeof(TValue);
-            base.BuildImpl(stream);
-            for (var i = 0; i < _builders.Length; i++) _builders[i].Position = patchPosition + valueSize * i;
-        }
-
-        public class ValuePositionBuilder : IBuilder<TValue>
-        {
-            public void Build(IBlobStream stream)
+            base.BuildImpl(stream, ref data);
+            for (var i = 0; i < _builders.Length; i++)
             {
-                // this builder is only made for record Position
-                // so no build process here
+                var builder = _builders[i];
+                builder.DataPosition = PatchPosition + valueSize * i;
+                builder.DataSize = valueSize;
+                builder.PatchPosition = PatchPosition + PatchSize;
+                builder.PatchSize = 0;
             }
-
-            public int Position { get; internal set; }
         }
     }
 

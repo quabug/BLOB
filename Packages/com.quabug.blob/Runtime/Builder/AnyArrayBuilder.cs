@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Blob
@@ -7,16 +6,15 @@ namespace Blob
     public class AnyArrayBuilder : Builder<BlobArrayAny>
     {
         private readonly List<IBuilder> _builderList = new List<IBuilder>();
-        private readonly int _alignment = 0;
-
-        public AnyArrayBuilder() {}
-        public AnyArrayBuilder(int alignment)
-        {
-            if (!Utilities.IsPowerOfTwo(alignment)) throw new ArgumentException($"{nameof(alignment)} must be power of 2");
-            _alignment = alignment;
-        }
+        public int Alignment { get; set; } = 0;
 
         public int Count => _builderList.Count;
+
+        private readonly ValuePositionBuilder<BlobArray<int>> _offsetsBuilder = new ValuePositionBuilder<BlobArray<int>>();
+        public IBuilder<BlobArray<int>> OffsetsBuilder => _offsetsBuilder;
+        
+        private readonly ValuePositionBuilder<BlobArray<byte>> _dataBuilder = new ValuePositionBuilder<BlobArray<byte>>();
+        public IBuilder<BlobArray<byte>> DataBuilder => _dataBuilder;
 
         public void Insert<T>(int index, T item) where T : unmanaged
         {
@@ -47,40 +45,52 @@ namespace Blob
             _builderList.Clear();
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override unsafe void BuildImpl(IBlobStream stream, ref BlobArrayAny data)
         {
             // write meta of Offsets:BlobArray<int>
             var offsetLength = _builderList.Count + 1;
-            stream.EnsureDataSize<BlobArrayAny>().WriteArrayMeta(offsetLength);
+            data.Offsets.Length = offsetLength;
+            data.Offsets.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Offsets.Offset);
 
-            var dataArrayPosition = stream.DataPosition;
-            var offsetPatchPosition = stream.PatchPosition;
             // TODO: stackalloc for frameworks later than .NET Standard 2.1?
             var offsets = new int[offsetLength];
 
+            // reserve space of offset array
+            var offsetsSize = sizeof(int) * offsetLength;
+            stream.ExpandPatch(offsetsSize, stream.GetAlignment(PatchAlignment));
+            data.Data.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Data.Offset);
+            
             // write data of Data:BlobArray<byte>
             // and fill offsets
-            stream.ExpandPatch(sizeof(int) * offsetLength, Utilities.AlignOf<int>()).ToPatchPosition();
-            var dataPatchPosition = stream.DataPosition;
-            var position = stream.DataPosition;
+            var position = stream.PatchPosition;
             for (var i = 0; i < _builderList.Count; i++)
             {
-                offsets[i] = stream.DataPosition - position;
+                offsets[i] = stream.PatchPosition - position;
+                stream.ToPatchPosition();
                 _builderList[i].Build(stream);
             }
-            var dataLength = stream.DataPosition - position;
-            offsets[_builderList.Count] = dataLength;
+            var patchSize = stream.PatchPosition - position;
+            offsets[_builderList.Count] = patchSize;
 
-            // write meta of Data:BlobArray<byte>
-            stream.ToPosition(dataArrayPosition).WriteArrayMeta(dataLength, dataPatchPosition - dataArrayPosition);
+            data.Data.Length = patchSize;
 
             // write data of Offsets:BlobArray<int>
-            stream.ToPosition(offsetPatchPosition).WriteArrayData(offsets);
+            stream.ToPosition(PatchPosition).WriteArrayData(offsets);
+
+            _offsetsBuilder.DataPosition = DataPosition + data.GetFieldOffset(ref data.Offsets);
+            _offsetsBuilder.DataSize = sizeof(BlobArray<int>);
+            _offsetsBuilder.PatchPosition = DataPosition + data.GetFieldOffset(ref data.Offsets.Offset) + data.Offsets.Offset;
+            _offsetsBuilder.PatchSize = offsetsSize;
+            
+            _dataBuilder.DataPosition = DataPosition + data.GetFieldOffset(ref data.Data);
+            _dataBuilder.DataSize = sizeof(BlobArray<byte>);
+            _dataBuilder.PatchPosition = DataPosition + data.GetFieldOffset(ref data.Data.Offset) + data.Data.Offset;
+            _dataBuilder.PatchSize = data.Data.Length;
         }
 
         private int GetAlignment<T>() where T : unmanaged
         {
-            return _alignment > 0 ? _alignment : Utilities.AlignOf<T>();
+            return Alignment > 0 ? Alignment : Utilities.AlignOf<T>();
         }
     }
 }

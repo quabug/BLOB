@@ -21,9 +21,9 @@ namespace Blob
         public PtrBuilderWithNewValue(TValue value) => _builder = new ValueBuilder<TValue>(value);
         public PtrBuilderWithNewValue([NotNull] IBuilder<TValue> builder) => _builder = builder;
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref TPtr data)
         {
-            stream.EnsureDataSize<TPtr>().WritePatchOffset().ToPatchPosition().WriteValue(_builder);
+            stream.WritePatchOffset().ToPatchPosition().WriteValue(_builder);
         }
     }
 

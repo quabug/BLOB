@@ -10,9 +10,11 @@ namespace Blob
         public BlobMemoryStream() : this (1024 * 4) {}
         public BlobMemoryStream(int capacity) => _stream = new MemoryStream(capacity);
 
+        public int Alignment { get; set; } = 4;
+        
         public int PatchPosition { get; set; }
 
-        public int DataPosition
+        public int Position
         {
             get => (int)_stream.Position;
             set => _stream.Position = value;
@@ -30,7 +32,7 @@ namespace Blob
 
         public unsafe void Write(byte* valuePtr, int size, int alignment)
         {
-            PatchPosition = Math.Max(PatchPosition, (int)Utilities.Align(DataPosition + size, alignment));
+            PatchPosition = Math.Max(PatchPosition, (int)Utilities.Align(Position + size, this.GetAlignment(alignment)));
 #if UNITY_2021_2_OR_NEWER || NETSTANDARD2_1_OR_GREATER
             _stream.Write(new System.ReadOnlySpan<byte>(valuePtr, size));
 #else

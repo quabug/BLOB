@@ -13,25 +13,20 @@ namespace Blob
     {
         public ITreeNode Root { get; set; }
 
-        public int Alignment { get; set; } = 0;
+        public AnyArrayBuilder ArrayBuilder { get; } = new AnyArrayBuilder();
 
         public AnyTreeBuilder() {}
+        public AnyTreeBuilder([NotNull] ITreeNode root) => Root = root;
 
-        public AnyTreeBuilder([NotNull] ITreeNode root)
-        {
-            Root = root;
-        }
-
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref BlobTreeAny data)
         {
             var (endIndices, valueBuilders) = Flatten(Root);
 
-            var dataBuilder = new AnyArrayBuilder(Alignment);
-            foreach (var valueBuilder in valueBuilders) dataBuilder.Add(valueBuilder);
+            foreach (var valueBuilder in valueBuilders) ArrayBuilder.Add(valueBuilder);
 
-            var builder = new StructBuilder<BlobTreeAny>();
+            var builder = new StructBuilder<BlobTreeAny> { DataAlignment = DataAlignment, PatchAlignment = PatchAlignment };
             builder.SetArray(ref builder.Value.EndIndices, endIndices);
-            builder.SetBuilder(ref builder.Value.Data, dataBuilder);
+            builder.SetBuilder(ref builder.Value.Data, ArrayBuilder);
             builder.Build(stream);
         }
 

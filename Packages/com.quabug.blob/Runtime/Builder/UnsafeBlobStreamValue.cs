@@ -8,12 +8,12 @@ namespace Blob
         private readonly IBlobStream _stream;
         private readonly int _position;
 
-        public UnsafeBlobStreamValue([NotNull] IBlobStream stream) : this(stream, stream.DataPosition) {}
+        public UnsafeBlobStreamValue([NotNull] IBlobStream stream) : this(stream, stream.Position) {}
         public UnsafeBlobStreamValue([NotNull] IBlobStream stream, int position)
         {
             _stream = stream;
             _position = position;
-            if (stream.Length <= position) throw new ArgumentException("invalid position");
+            if (stream.Length < position + sizeof(T)) throw new ArgumentException("invalid position");
         }
 
         public ref T Value

@@ -7,7 +7,7 @@ namespace Blob
     public class NullTerminatedStringBuilder<TEncoding> : ArrayBuilder<byte, BlobNullTerminatedString<TEncoding>>
         where TEncoding : Encoding, new()
     {
-        public NullTerminatedStringBuilder() : base(new byte[] { 0 }, 4) {}
-        public NullTerminatedStringBuilder([NotNull] string str) : base(new TEncoding().GetBytes(str).Append((byte)0).ToArray(), 4) {}
+        public NullTerminatedStringBuilder() : base(new byte[] { 0 }) {}
+        public NullTerminatedStringBuilder([NotNull] string str) : base(new TEncoding().GetBytes(str).Append((byte)0).ToArray()) {}
     }
 }

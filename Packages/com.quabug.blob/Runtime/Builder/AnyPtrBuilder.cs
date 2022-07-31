@@ -18,51 +18,38 @@
             _builder = valueBuilder;
         }
 
-        protected override unsafe void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref BlobPtrAny data)
         {
-            stream.EnsureDataSize<BlobPtrAny>()
-                .WriteArrayMeta(sizeof(T))
-                .ToPatchPosition()
-                .WriteValue(_builder)
-                .AlignPatch(Utilities.AlignOf<T>())
-            ;
+            data.Data.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Data.Offset);
+            stream.ToPatchPosition().WriteValue(_builder);
+            data.Data.Length = stream.PatchPosition - PatchPosition;
         }
     }
 
     public class AnyPtrBuilder : Builder<BlobPtrAny>
     {
         private IBuilder _builder;
-        private int _size = -1;
-        private int _alignment = 0;
 
         public void SetValue<T>(T value) where T : unmanaged
         {
             SetValue(new ValueBuilder<T>(value));
         }
 
-        public unsafe void SetValue<T>(IBuilder<T> valueBuilder) where T : unmanaged
+        public void SetValue<T>(IBuilder<T> valueBuilder) where T : unmanaged
         {
             _builder = valueBuilder;
-            _size = sizeof(T);
-            _alignment = Utilities.AlignOf<T>();
         }
 
         public void SetValue(IBuilder valueBuilder)
         {
             _builder = valueBuilder;
-            _size = -1;
-            _alignment = 0;
         }
 
-        protected override void BuildImpl(IBlobStream stream)
+        protected override void BuildImpl(IBlobStream stream, ref BlobPtrAny data)
         {
-            stream.EnsureDataSize<BlobPtrAny>().WritePatchOffset();
-            var sizePosition = stream.DataPosition;
-            var patchPosition = stream.PatchPosition;
+            data.Data.Offset = stream.PatchOffset() - data.GetFieldOffset(ref data.Data.Offset);
             stream.ToPatchPosition().WriteValue(_builder);
-            stream.DataPosition = sizePosition;
-            stream.WriteValue(_size < 0 ? stream.PatchPosition - patchPosition : _size);
-            stream.AlignPatch(_alignment <= 0 ? 4 : _alignment);
+            data.Data.Length = stream.PatchPosition - PatchPosition;
         }
     }
 }
