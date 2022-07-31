@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Blob
 {
-    public unsafe class StructBuilder<T> : Builder<T> where T : unmanaged
+    public class StructBuilder<T> : Builder<T> where T : unmanaged
     {
         private T _value;
         public ref T Value => ref _value;

@@ -13,7 +13,7 @@ namespace Blob
         private readonly ValuePositionBuilder<BlobArray<int>> _offsetsBuilder = new ValuePositionBuilder<BlobArray<int>>();
         public IBuilder<BlobArray<int>> OffsetsBuilder => _offsetsBuilder;
         
-        public readonly ValuePositionBuilder<BlobArray<byte>> _dataBuilder = new ValuePositionBuilder<BlobArray<byte>>();
+        private readonly ValuePositionBuilder<BlobArray<byte>> _dataBuilder = new ValuePositionBuilder<BlobArray<byte>>();
         public IBuilder<BlobArray<byte>> DataBuilder => _dataBuilder;
 
         public void Insert<T>(int index, T item) where T : unmanaged
