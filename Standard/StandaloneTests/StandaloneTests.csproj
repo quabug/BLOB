@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Nullable>disable</Nullable>
+        <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <AssemblyName>Blob.Tests</AssemblyName>
         <RootNamespace>Blob.Tests</RootNamespace>
         <OutputType>Library</OutputType>
         <TargetFrameworks>net48;net5.0;net6.0</TargetFrameworks>
-        <LangVersion>8</LangVersion>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -30,9 +30,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <Compile Include="..\Assets\Tests\*.cs">
-            <Link>Blob\%(FileName)%(Extension)</Link>
-        </Compile>
+        <Compile Include="..\..\Assets\Tests\*.cs" />
     </ItemGroup>
 
 </Project>

@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <ImplicitUsings>disable</ImplicitUsings>
-        <Nullable>disable</Nullable>
-        <LangVersion>8</LangVersion>
+        <Nullable>enable</Nullable>
+        <LangVersion>9</LangVersion>
         <AssemblyName>Blob</AssemblyName>
         <RootNamespace>Blob</RootNamespace>
         <PackageId>BLOB</PackageId>
@@ -33,23 +33,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\README.md">
+        <Content Include="..\..\README.md">
             <Link>README.md</Link>
             <Pack>true</Pack>
             <PackagePath>README.md</PackagePath>
         </Content>
     </ItemGroup>
-    
-    <ItemGroup>
-        <Compile Include="..\Packages\com.quabug.blob\Runtime\Blob\*.cs">
-            <Link>Blob\%(FileName)%(Extension)</Link>
-        </Compile>
-    </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="..\Packages\com.quabug.blob\Runtime\Builder\*.cs">
-            <Link>Builder\%(FileName)%(Extension)</Link>
-        </Compile>
+        <Compile Include="..\..\Packages\com.quabug.blob\Runtime\**\*.cs" />
     </ItemGroup>
-    
 </Project>
