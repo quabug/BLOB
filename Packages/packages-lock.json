@@ -1,10 +1,44 @@
 {
   "dependencies": {
+    "com.quabug.any-processor": {
+      "version": "file:com.quabug.any-processor",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.mono-cecil": "1.11.4"
+      }
+    },
+    "com.quabug.any-serialize": {
+      "version": "file:com.quabug.any-serialize",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.quabug.any-processor": "0.1.4",
+        "com.unity.nuget.mono-cecil": "1.11.4",
+        "com.quabug.one-shot-injection": "2.2.0"
+      }
+    },
     "com.quabug.blob": {
       "version": "file:com.quabug.blob",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
+    },
+    "com.quabug.blob.editor": {
+      "version": "file:com.quabug.blob.editor",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.quabug.blob": "1.4.0",
+        "com.quabug.any-serialize": "0.4.4"
+      }
+    },
+    "com.quabug.one-shot-injection": {
+      "version": "2.2.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
     },
     "com.unity.burst": {
       "version": "1.6.6",
@@ -99,7 +133,7 @@
     },
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.4",
-      "depth": 2,
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"

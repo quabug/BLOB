@@ -1,0 +1,17 @@
+{
+    "name": "BlobBuilder.AnySerialize",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9835e0fdeb3db2247b6bf67e4f7d0469",
+        "GUID:3ea4545e70041684b9bbf08dd5c6e257"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

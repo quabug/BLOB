@@ -1,0 +1,18 @@
+{
+    "name": "BlobBuilder.Editor.Sample",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3d410e167b0264fa48741f364f53ada1",
+        "GUID:3ea4545e70041684b9bbf08dd5c6e257",
+        "GUID:9835e0fdeb3db2247b6bf67e4f7d0469"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

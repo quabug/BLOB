@@ -269,8 +269,7 @@ namespace Blob.Tests
             AssertBlobEqual(unityBlob, blob);
         }
 
-        static unsafe void AssertBlobEqual<T>(BlobAssetReference<T> expected, BlobAssetReference<T> actual)
-            where T : unmanaged
+        static unsafe void AssertBlobEqual<T>(BlobAssetReference<T> expected, BlobAssetReference<T> actual) where T : unmanaged
         {
             // Assert.AreEqual(expected.GetLength(), actual.GetLength());
             var expectedBinary = ToByteArray(expected);
@@ -279,11 +278,12 @@ namespace Blob.Tests
 
             byte[] ToByteArray(BlobAssetReference<T> blob)
             {
-                var array = new byte[blob.GetLength()];
+                var length = blob.m_data.Header->Length;
+                var array = new byte[length];
                 var arrayPtr = UnsafeUtility.PinGCArrayAndGetDataAddress(array, out var gcHandler);
                 try
                 {
-                    UnsafeUtility.MemCpy(arrayPtr, blob.GetUnsafePtr(), blob.GetLength());
+                    UnsafeUtility.MemCpy(arrayPtr, blob.GetUnsafePtr(), length);
                 }
                 finally
                 {

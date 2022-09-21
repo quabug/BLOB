@@ -1,0 +1,12 @@
+{
+  "name": "com.quabug.blob.editor",
+  "description": "BLOB - Editor",
+  "version": "0.1.0",
+  "unity": "2021.3",
+  "displayName": "BLOB Editor",
+  "type": "library",
+  "dependencies": {
+    "com.quabug.blob": "1.4.0",
+    "com.quabug.any-serialize": "0.4.4"
+  }
+}
